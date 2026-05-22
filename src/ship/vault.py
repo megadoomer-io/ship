@@ -26,11 +26,13 @@ def clone_or_pull(repo_url: str, local_path: str) -> None:
         log.info("Pulled latest vault content to %s", local_path)
     else:
         path.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run(
+        result = subprocess.run(
             ["git", "clone", "--depth", "1", repo_url, str(path)],
             capture_output=True,
-            check=True,
         )
+        if result.returncode != 0:
+            log.error("Failed to clone vault: %s", result.stderr.decode())
+            return
         log.info("Cloned vault to %s", local_path)
 
 

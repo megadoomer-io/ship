@@ -18,7 +18,7 @@ RUN uv pip install --python /opt/venv/bin/python --no-deps .
 FROM python:3.13-slim
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends git \
+    && apt-get install -y --no-install-recommends git openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -g 1000 ship \
