@@ -7,14 +7,14 @@
 {% if weekly_summary %}
 <section class="card">
     <h2>This Week</h2>
-    <pre class="content-block">{{ weekly_summary }}</pre>
+    <div class="rendered-content">{{ weekly_summary | safe }}</div>
 </section>
 {% endif %}
 
 {% if active_work %}
 <section class="card">
     <h2>In Flight</h2>
-    <pre class="content-block">{{ active_work }}</pre>
+    <div class="rendered-content">{{ active_work | safe }}</div>
 </section>
 {% endif %}
 {% endblock %}

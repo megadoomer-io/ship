@@ -6,13 +6,13 @@
 
 <section class="card">
     <h2>Active Work</h2>
-    <pre class="content-block">{{ active_work }}</pre>
+    <div class="rendered-content">{{ active_work | safe }}</div>
 </section>
 
 {% if weekly_summary %}
 <section class="card">
     <h2>Weekly Summary</h2>
-    <pre class="content-block">{{ weekly_summary }}</pre>
+    <div class="rendered-content">{{ weekly_summary | safe }}</div>
 </section>
 {% endif %}
 
@@ -20,7 +20,8 @@
 <section class="card">
     <h2>Today's Entries</h2>
     {% for entry in daily_entries %}
-    <pre class="content-block">{{ entry }}</pre>
+    <div class="rendered-content">{{ entry | safe }}</div>
+    {% if not loop.last %}<hr>{% endif %}
     {% endfor %}
 </section>
 {% endif %}

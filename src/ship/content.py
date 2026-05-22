@@ -1,12 +1,14 @@
 import pathlib
 from datetime import date
 
+from ship import markdown
+
 
 def get_active_work(vault_path: str) -> str:
     index = pathlib.Path(vault_path) / "claude" / "active-work" / "INDEX.md"
     if index.exists():
-        return index.read_text()
-    return "No active work index found."
+        return markdown.render(index.read_text())
+    return "<p>No active work index found.</p>"
 
 
 def get_weekly_summary(vault_path: str) -> str | None:
@@ -16,7 +18,7 @@ def get_weekly_summary(vault_path: str) -> str | None:
 
     files = sorted(summaries_dir.rglob("*.md"), reverse=True)
     if files:
-        return files[0].read_text()
+        return markdown.render(files[0].read_text())
     return None
 
 
@@ -31,5 +33,5 @@ def get_daily_entries(vault_path: str) -> list[str]:
     for d in today_dirs:
         if d.is_dir():
             for f in sorted(d.glob("*.md")):
-                entries.append(f.read_text())
+                entries.append(markdown.render(f.read_text()))
     return entries

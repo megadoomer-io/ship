@@ -133,6 +133,127 @@ h2 {
     font-style: italic;
 }
 
+.rendered-content h1,
+.rendered-content h2,
+.rendered-content h3 {
+    font-family: var(--font-mono);
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.rendered-content h1 { font-size: 1.3rem; color: var(--accent); }
+.rendered-content h2 { font-size: 1.1rem; }
+.rendered-content h3 { font-size: 0.95rem; color: var(--text-muted); }
+
+.rendered-content h1:first-child,
+.rendered-content h2:first-child,
+.rendered-content h3:first-child {
+    margin-top: 0;
+}
+
+.rendered-content p {
+    margin-bottom: 0.75rem;
+}
+
+.rendered-content ul,
+.rendered-content ol {
+    margin-bottom: 0.75rem;
+    padding-left: 1.5rem;
+}
+
+.rendered-content li {
+    margin-bottom: 0.25rem;
+}
+
+.rendered-content li ul,
+.rendered-content li ol {
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+.rendered-content a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+}
+
+.rendered-content a:hover {
+    border-bottom-color: var(--accent);
+}
+
+.rendered-content code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--bg);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+}
+
+.rendered-content pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin-bottom: 0.75rem;
+}
+
+.rendered-content pre code {
+    background: none;
+    padding: 0;
+}
+
+.rendered-content blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-muted);
+}
+
+.rendered-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.rendered-content th,
+.rendered-content td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+
+.rendered-content th {
+    background: var(--bg);
+    font-weight: 600;
+}
+
+.rendered-content hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.5rem 0;
+}
+
+.rendered-content .task-list-item {
+    list-style: none;
+    margin-left: -1.5rem;
+}
+
+.rendered-content .task-list-item input[type="checkbox"] {
+    margin-right: 0.5rem;
+}
+
+.tag {
+    font-family: var(--font-mono);
+    font-size: 0.8em;
+    color: var(--accent-secondary);
+    background: rgba(232, 67, 147, 0.1);
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+}
+
 .footer {
     text-align: center;
     padding: 1.5rem;
