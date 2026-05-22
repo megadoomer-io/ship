@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Porthole{% endblock %}
+
+{% block content %}
+<h1>Porthole</h1>
+
+{% if weekly_summary %}
+<section class="card">
+    <h2>This Week</h2>
+    <pre class="content-block">{{ weekly_summary }}</pre>
+</section>
+{% endif %}
+
+{% if active_work %}
+<section class="card">
+    <h2>In Flight</h2>
+    <pre class="content-block">{{ active_work }}</pre>
+</section>
+{% endif %}
+{% endblock %}

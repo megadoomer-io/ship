@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Bridge{% endblock %}
+
+{% block content %}
+<h1>Bridge</h1>
+
+<section class="card">
+    <h2>Active Work</h2>
+    <pre class="content-block">{{ active_work }}</pre>
+</section>
+
+{% if weekly_summary %}
+<section class="card">
+    <h2>Weekly Summary</h2>
+    <pre class="content-block">{{ weekly_summary }}</pre>
+</section>
+{% endif %}
+
+{% if daily_entries %}
+<section class="card">
+    <h2>Today's Entries</h2>
+    {% for entry in daily_entries %}
+    <pre class="content-block">{{ entry }}</pre>
+    {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

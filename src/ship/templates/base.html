@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ship — {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-brand">Ship</a>
+            <div class="nav-links">
+                {% if is_owner %}
+                <a href="{{ url_for('ship.bridge') }}" class="nav-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge</a>
+                {% endif %}
+                <a href="{{ url_for('ship.porthole') }}" class="nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole</a>
+                <a href="{{ url_for('ship.observation_deck') }}" class="nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Observation Deck</a>
+            </div>
+        </div>
+    </nav>
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">
+        Ship v0.1.0
+    </footer>
+</body>
+</html>
