@@ -48,7 +48,7 @@ jobs:
       - name: Update image tag
         run: |
           TAG="${{ needs.build-and-push.outputs.tag }}"
-          cd applications/ship/ship/do
+          cd applications/megadoomer/ship/do
           docker run --rm \
             -v "$(pwd)":/work --workdir /work \
             registry.k8s.io/kustomize/kustomize:v5.8.1 \

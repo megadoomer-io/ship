@@ -1,3 +1,9 @@
+def test_healthz_returns_200(client):
+    response = client.get("/healthz")
+    assert response.status_code == 200
+    assert response.data == b"ok"
+
+
 def test_index_redirects_to_bridge_for_owner(client):
     response = client.get("/", headers={"X-Auth-Request-User": "testowner"})
     assert response.status_code == 302

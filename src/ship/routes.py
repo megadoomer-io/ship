@@ -20,6 +20,11 @@ def _is_owner(user: str | None) -> bool:
     return user == owner
 
 
+@bp.route("/healthz")
+def healthz() -> tuple[str, int]:
+    return "ok", 200
+
+
 @bp.route("/")
 def index() -> werkzeug.wrappers.Response:
     user = _get_user()
