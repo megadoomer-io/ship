@@ -22,7 +22,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -g 1000 ship \
-    && useradd -u 1000 -g ship -s /bin/false -M ship
+    && useradd -u 1000 -g ship -s /bin/false -d /tmp ship
 
 COPY --from=build /opt/venv /opt/venv
 COPY --from=build /app/src /app/src
