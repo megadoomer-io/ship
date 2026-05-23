@@ -29,7 +29,8 @@ Key implications:
 ## Development
 
 ```bash
-make run       # Flask dev server with hot reload
+make dev       # Dev server with mock vault data (no real vault needed)
+make run       # Flask dev server with hot reload (needs SHIP_VAULT_REPO)
 make check     # Lint + typecheck + test
 make format    # Auto-format with ruff
 ```
@@ -40,6 +41,5 @@ Push to main triggers: build image -> push to GHCR -> update megadoomer-config -
 
 ## TODOs
 
-- [ ] Local development instance with mock vault data for testing without a real vault clone
 - [ ] Multi-source vault support (see docs/decisions/2026-05-22-multi-source-vaults.md)
 - [ ] Retro summary rendering on observation deck (pending /work-summarize skill update)

@@ -1,7 +1,11 @@
-.PHONY: run test lint format typecheck check docker-build docker-run
+.PHONY: run dev test lint format typecheck check docker-build docker-run
 
 run:
 	uv run flask --app ship run --debug
+
+dev:
+	uv run python -c "from ship.dev import create_mock_vault; create_mock_vault('/tmp/ship-dev-vault')"
+	SHIP_VAULT_PATH=/tmp/ship-dev-vault SHIP_OWNER_GITHUB_USER=dev uv run flask --app ship run --debug
 
 test:
 	uv run pytest

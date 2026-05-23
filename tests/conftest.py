@@ -1,14 +1,22 @@
+import os
+import pathlib
+import typing
+
+import flask
+import flask.testing
 import pytest
 
 import ship
+from ship.dev import create_mock_vault
 
 
 @pytest.fixture()
-def app():
-    import os
+def app(tmp_path: pathlib.Path) -> typing.Iterator[flask.Flask]:
+    vault_path = str(tmp_path / "vault")
+    create_mock_vault(vault_path)
 
     os.environ["SHIP_VAULT_REPO"] = ""
-    os.environ["SHIP_VAULT_PATH"] = "/tmp/ship-test-vault"
+    os.environ["SHIP_VAULT_PATH"] = vault_path
     os.environ["SHIP_OWNER_GITHUB_USER"] = "testowner"
 
     app = ship.create_app()
@@ -18,5 +26,5 @@ def app():
 
 
 @pytest.fixture()
-def client(app):
+def client(app: flask.Flask) -> flask.testing.FlaskClient:
     return app.test_client()
