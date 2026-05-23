@@ -1,7 +1,16 @@
 def test_healthz_returns_200(client):
     response = client.get("/healthz")
     assert response.status_code == 200
-    assert response.data == b"ok"
+    data = response.get_json()
+    assert data["status"] == "ok"
+    assert "git_sha" in data
+
+
+def test_healthz_includes_git_sha(client, monkeypatch):
+    monkeypatch.setenv("GIT_SHA", "abc1234")
+    response = client.get("/healthz")
+    data = response.get_json()
+    assert data["git_sha"] == "abc1234"
 
 
 def test_index_redirects_to_bridge_for_owner(client):

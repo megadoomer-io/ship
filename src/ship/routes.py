@@ -1,3 +1,5 @@
+import os
+
 import flask
 import werkzeug.wrappers
 
@@ -21,8 +23,8 @@ def _is_owner(user: str | None) -> bool:
 
 
 @bp.route("/healthz")
-def healthz() -> tuple[str, int]:
-    return "ok", 200
+def healthz() -> flask.Response:
+    return flask.jsonify({"status": "ok", "git_sha": os.environ.get("GIT_SHA", "unknown")})
 
 
 @bp.route("/")

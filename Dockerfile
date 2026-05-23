@@ -27,7 +27,9 @@ RUN groupadd -g 1000 ship \
 COPY --from=build /opt/venv /opt/venv
 COPY --from=build /app/src /app/src
 
+ARG GIT_SHA=unknown
 ENV PATH="/opt/venv/bin:$PATH"
+ENV GIT_SHA=${GIT_SHA}
 
 WORKDIR /app
 
