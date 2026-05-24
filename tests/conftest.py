@@ -18,6 +18,9 @@ def app(tmp_path: pathlib.Path) -> typing.Iterator[flask.Flask]:
     os.environ["SHIP_VAULT_REPO"] = ""
     os.environ["SHIP_VAULT_PATH"] = vault_path
     os.environ["SHIP_OWNER_GITHUB_USER"] = "testowner"
+    os.environ["SHIP_OWNERS"] = "testowner"
+    os.environ["SHIP_MANAGERS"] = "testmanager"
+    os.environ["SHIP_TEAMMATES"] = "testmate"
 
     app = ship.create_app()
     app.config["TESTING"] = True

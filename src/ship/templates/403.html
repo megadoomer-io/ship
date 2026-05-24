@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Access Denied{% endblock %}
+{% block content %}
+<h1>Access Denied</h1>
+<p>You don't have permission to view this page.</p>
+{% if user %}
+<p>You're signed in as <strong>{{ user }}</strong>.</p>
+{% endif %}
+<p>If you believe this is a mistake, contact the ship owner.</p>
+{% endblock %}

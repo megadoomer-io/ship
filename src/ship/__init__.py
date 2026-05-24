@@ -2,7 +2,7 @@ import os
 
 import flask
 
-from ship import routes, vault
+from ship import auth, routes, vault
 
 
 def create_app() -> flask.Flask:
@@ -18,7 +18,14 @@ def create_app() -> flask.Flask:
     app.config["OWNER_GITHUB_USER"] = os.environ.get("SHIP_OWNER_GITHUB_USER", "")
     app.config["PULL_INTERVAL_SECONDS"] = int(os.environ.get("SHIP_PULL_INTERVAL_SECONDS", "300"))
 
+    app.config["AUTH_OWNERS"] = auth.parse_user_list(os.environ.get("SHIP_OWNERS", app.config["OWNER_GITHUB_USER"]))
+    app.config["AUTH_MANAGERS"] = auth.parse_user_list(os.environ.get("SHIP_MANAGERS", ""))
+    app.config["AUTH_TEAMMATES"] = auth.parse_user_list(os.environ.get("SHIP_TEAMMATES", ""))
+
     app.register_blueprint(routes.bp)
+    app.before_request(auth.enforce_auth)
+    app.register_error_handler(401, auth.handle_401)
+    app.register_error_handler(403, auth.handle_403)
 
     if not app.config.get("TESTING"):
         vault.start_sync(app)

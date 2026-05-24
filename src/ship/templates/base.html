@@ -11,11 +11,16 @@
         <div class="nav-inner">
             <a href="/" class="nav-brand">Ship</a>
             <div class="nav-links">
-                {% if is_owner %}
+                {% if role and role.value >= 3 %}
                 <a href="{{ url_for('ship.bridge') }}" class="nav-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge</a>
                 {% endif %}
+                {% if role and role.value >= 2 %}
                 <a href="{{ url_for('ship.porthole') }}" class="nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole</a>
+                {% endif %}
+                {% if role %}
                 <a href="{{ url_for('ship.observation_deck') }}" class="nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Observation Deck</a>
+                {% endif %}
+                <span class="nav-user">{{ user }}</span>
             </div>
         </div>
     </nav>
