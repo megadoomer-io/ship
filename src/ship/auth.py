@@ -57,8 +57,8 @@ def enforce_auth() -> flask.Response | None:
         return None
 
     user = flask.request.headers.get(
-        "X-Auth-Request-User",
-        flask.request.headers.get("X-Auth-Request-Preferred-Username"),
+        "X-Auth-Request-Preferred-Username",
+        flask.request.headers.get("X-Auth-Request-User"),
     )
     if not user:
         flask.abort(401)
