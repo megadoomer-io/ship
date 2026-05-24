@@ -27,7 +27,7 @@ RUN groupadd -g 1000 ship \
 COPY --from=build /opt/venv /opt/venv
 COPY --from=build /app/src /app/src
 
-COPY <<'EOF' /tmp/.gitconfig
+COPY <<'EOF' /etc/gitconfig
 [pack]
     threads = 2
 [core]
@@ -46,4 +46,4 @@ USER ship
 
 EXPOSE 8080
 
-CMD ["gunicorn", "--workers", "2", "--bind", "0.0.0.0:8080", "ship:create_app()"]
+CMD ["gunicorn", "--workers", "1", "--bind", "0.0.0.0:8080", "ship:create_app()"]
