@@ -27,6 +27,15 @@ RUN groupadd -g 1000 ship \
 COPY --from=build /opt/venv /opt/venv
 COPY --from=build /app/src /app/src
 
+COPY <<'EOF' /tmp/.gitconfig
+[pack]
+    threads = 2
+[core]
+    deltaBaseCacheLimit = 64m
+    packedGitLimit = 128m
+    packedGitWindowSize = 512k
+EOF
+
 ARG GIT_SHA=unknown
 ENV PATH="/opt/venv/bin:$PATH"
 ENV GIT_SHA=${GIT_SHA}
