@@ -19,11 +19,11 @@ def _has_commits(path: pathlib.Path) -> bool:
     return result.returncode == 0
 
 
-def clone_or_pull(repo_url: str, local_path: str) -> None:
-    path = pathlib.Path(local_path)
+def clone_or_pull(repo_url: str, clone_path: str) -> None:
+    path = pathlib.Path(clone_path)
 
     if (path / ".git").exists() and not _has_commits(path):
-        log.warning("Removing broken .git directory at %s", local_path)
+        log.warning("Removing broken .git directory at %s", clone_path)
         shutil.rmtree(path)
 
     if (path / ".git").exists():
@@ -45,7 +45,7 @@ def clone_or_pull(repo_url: str, local_path: str) -> None:
         if result.returncode != 0:
             log.error("Failed to reset vault: %s", result.stderr.decode())
             return
-        log.info("Pulled latest vault content to %s", local_path)
+        log.info("Pulled latest vault content to %s", clone_path)
     else:
         path.parent.mkdir(parents=True, exist_ok=True)
         result = subprocess.run(
@@ -55,26 +55,26 @@ def clone_or_pull(repo_url: str, local_path: str) -> None:
         if result.returncode != 0:
             log.error("Failed to clone vault: %s", result.stderr.decode())
             return
-        log.info("Cloned vault to %s", local_path)
+        log.info("Cloned vault to %s", clone_path)
 
 
 def start_sync(app: flask.Flask) -> None:
     repo_url = app.config["VAULT_REPO"]
-    local_path = app.config["VAULT_PATH"]
+    clone_path = app.config["VAULT_CLONE_PATH"]
     interval = app.config["PULL_INTERVAL_SECONDS"]
 
     if not repo_url:
         log.warning("SHIP_VAULT_REPO not set, vault sync disabled")
         return
 
-    clone_or_pull(repo_url, local_path)
+    clone_or_pull(repo_url, clone_path)
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(
         clone_or_pull,
         "interval",
         seconds=interval,
-        args=[repo_url, local_path],
+        args=[repo_url, clone_path],
     )
     scheduler.start()
     app.extensions["vault_scheduler"] = scheduler

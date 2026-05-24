@@ -13,6 +13,7 @@ def create_app() -> flask.Flask:
     )
 
     app.config["VAULT_REPO"] = os.environ.get("SHIP_VAULT_REPO", "")
+    app.config["VAULT_CLONE_PATH"] = os.environ.get("SHIP_VAULT_CLONE_PATH", "/tmp/vault-clone")
     app.config["VAULT_PATH"] = os.environ.get("SHIP_VAULT_PATH", "/tmp/vault")
     app.config["OWNER_GITHUB_USER"] = os.environ.get("SHIP_OWNER_GITHUB_USER", "")
     app.config["PULL_INTERVAL_SECONDS"] = int(os.environ.get("SHIP_PULL_INTERVAL_SECONDS", "300"))
