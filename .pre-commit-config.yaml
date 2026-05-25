@@ -10,7 +10,7 @@ repos:
     rev: v1.16.0
     hooks:
       - id: mypy
-        additional_dependencies: [flask, mistune, apscheduler, gunicorn]
+        additional_dependencies: [flask, mistune, apscheduler, gunicorn, pyyaml, types-pyyaml]
         args: [--strict]
         pass_filenames: false
         entry: mypy src/

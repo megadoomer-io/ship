@@ -8,6 +8,7 @@ dependencies = [
     "mistune",
     "apscheduler",
     "gunicorn",
+    "pyyaml",
 ]
 
 [dependency-groups]
@@ -16,6 +17,7 @@ dev = [
     "mypy",
     "pytest",
     "pytest-cov",
+    "types-pyyaml",
 ]
 
 [build-system]

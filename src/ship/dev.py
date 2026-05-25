@@ -22,6 +22,10 @@ def create_mock_vault(target_path: str) -> None:
     summary_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy(FIXTURES_DIR / "weekly-summary.md", summary_dir / f"{year}-{week}.md")
 
+    retro_dir = vault / "journal" / "summaries" / "retro" / decade / year / week
+    retro_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy(FIXTURES_DIR / "retro-summary.md", retro_dir / f"{year}-{week}.md")
+
     entries_dir = vault / "journal" / "entries" / decade / year / month / week / day_iso
     entries_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy(FIXTURES_DIR / "daily-entry-1.md", entries_dir / "09-15-ci-fix.md")
