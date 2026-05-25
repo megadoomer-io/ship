@@ -44,15 +44,18 @@ def porthole() -> str:
         "porthole.html",
         role=flask.g.role,
         user=flask.g.user,
-        weekly_summary=content.get_weekly_summary(vault_path),
         active_work=content.get_active_work(vault_path),
+        weekly_summary=content.get_weekly_summary(vault_path),
+        timeline=content.get_timeline(vault_path, limit=10),
     )
 
 
 @bp.route("/observation-deck")
 def observation_deck() -> str:
+    vault_path = flask.current_app.config["VAULT_PATH"]
     return flask.render_template(
         "observation_deck.html",
         role=flask.g.role,
         user=flask.g.user,
+        timeline=content.get_timeline(vault_path),
     )
