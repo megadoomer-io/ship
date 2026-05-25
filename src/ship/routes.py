@@ -51,14 +51,27 @@ def porthole() -> str:
 @bp.route("/observation-deck")
 def observation_deck() -> str:
     vault_path = flask.current_app.config["VAULT_PATH"]
-    timeline = content.get_timeline(vault_path, limit=10)
-    weekly_items = [item for item in timeline if item["content_type"] == "weekly"]
-    weekly_summary = weekly_items[0]["rendered_html"] if weekly_items else None
+    period = flask.request.args.get("period", "week")
+    highlight_week = flask.request.args.get("week")
+    feed = content.get_hierarchical_feed(vault_path, period=period)
     return flask.render_template(
         "observation_deck.html",
         role=flask.g.role,
         user=flask.g.user,
+        feed=feed,
         active_work=content.get_active_work(vault_path),
-        weekly_summary=weekly_summary,
-        timeline=timeline,
+        current_period=period,
+        highlight_week=highlight_week,
+    )
+
+
+@bp.route("/captains-log")
+def captains_log() -> str:
+    vault_path = flask.current_app.config["VAULT_PATH"]
+    retros = content.get_retro_summaries(vault_path, limit=20)
+    return flask.render_template(
+        "captains_log.html",
+        role=flask.g.role,
+        user=flask.g.user,
+        retros=retros,
     )

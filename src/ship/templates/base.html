@@ -19,6 +19,7 @@
                 {% endif %}
                 {% if role %}
                 <a href="{{ url_for('ship.observation_deck') }}" class="nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Observation Deck</a>
+                <a href="{{ url_for('ship.captains_log') }}" class="nav-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log</a>
                 {% endif %}
                 <span class="nav-user">{{ user }}</span>
             </div>
