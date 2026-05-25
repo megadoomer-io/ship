@@ -40,13 +40,16 @@ def bridge() -> str:
 @bp.route("/porthole")
 def porthole() -> str:
     vault_path = flask.current_app.config["VAULT_PATH"]
+    timeline = content.get_timeline(vault_path, limit=10)
+    weekly_items = [item for item in timeline if item["content_type"] == "weekly"]
+    weekly_summary = weekly_items[0]["rendered_html"] if weekly_items else None
     return flask.render_template(
         "porthole.html",
         role=flask.g.role,
         user=flask.g.user,
         active_work=content.get_active_work(vault_path),
-        weekly_summary=content.get_weekly_summary(vault_path),
-        timeline=content.get_timeline(vault_path, limit=10),
+        weekly_summary=weekly_summary,
+        timeline=timeline,
     )
 
 

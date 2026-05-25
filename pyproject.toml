@@ -8,6 +8,7 @@ dependencies = [
     "mistune",
     "apscheduler",
     "gunicorn",
+    "flask-compress",
     "pyyaml",
 ]
 
