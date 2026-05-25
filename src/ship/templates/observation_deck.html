@@ -5,6 +5,12 @@
 <h1>Observation Deck</h1>
 <p class="page-blurb">The view from above. What's in flight, what just shipped, what's coming.</p>
 
+<div class="period-filter">
+    <a href="?period=week" class="period-btn {% if current_period == 'week' %}active{% endif %}">Past Week</a>
+    <a href="?period=month" class="period-btn {% if current_period == 'month' %}active{% endif %}">Past Month</a>
+    <a href="?period=all" class="period-btn {% if current_period == 'all' %}active{% endif %}">All Time</a>
+</div>
+
 {% if active_work %}
 <section class="card">
     <h2>In Flight</h2>
@@ -12,24 +18,39 @@
 </section>
 {% endif %}
 
-{% if timeline %}
+{% if feed %}
 <section class="card">
-    <h2>Recent Activity</h2>
-    {% for item in timeline %}
-    <div class="timeline-compact">
-        <span class="badge badge-{{ item.content_type }}">{{ item.content_type }}</span>
-        <span class="timeline-title-inline">{{ item.title }}</span>
-        <time class="timeline-date-inline">{{ item.date.strftime('%b %d') }}</time>
-    </div>
-    {% if not loop.last %}<hr class="timeline-divider">{% endif %}
+    <h2>Activity</h2>
+    {% for week in feed %}
+    <details id="week-{{ week.week }}" {% if loop.first or highlight_week == week.week %}open{% endif %} class="week-group">
+        <summary class="week-summary">{{ week.summary_label }}</summary>
+        <div class="week-content">
+            {% if week.weekly_summary_html %}
+            <div class="rendered-content week-summary-body">{{ week.weekly_summary_html | safe }}</div>
+            {% endif %}
+
+            {% for day in week.daily_groups %}
+            <details {% if loop.first %}open{% endif %} class="day-group">
+                <summary class="day-summary">{{ day.date_label }} ({{ day.entries | length }} {% if day.entries | length == 1 %}entry{% else %}entries{% endif %})</summary>
+                <div class="day-content">
+                    {% for entry in day.entries %}
+                    <div class="rendered-content">{{ entry | safe }}</div>
+                    {% if not loop.last %}<hr>{% endif %}
+                    {% endfor %}
+                </div>
+            </details>
+            {% endfor %}
+
+            <div class="week-links">
+                <a href="{{ url_for('ship.captains_log') }}#{{ week.week }}">Read the retro</a>
+            </div>
+        </div>
+    </details>
     {% endfor %}
 </section>
-{% endif %}
-
-{% if weekly_summary %}
+{% else %}
 <section class="card">
-    <h2>This Week</h2>
-    <div class="rendered-content">{{ weekly_summary | safe }}</div>
+    <p class="text-muted">No activity yet for this period.</p>
 </section>
 {% endif %}
 {% endblock %}

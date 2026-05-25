@@ -12,6 +12,7 @@ from ship import markdown
 logger = logging.getLogger(__name__)
 
 _H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
+_WEEK_RE = re.compile(r"(\d{4})-W(\d{2})")
 
 
 class TimelineItem(typing.TypedDict):
@@ -20,6 +21,22 @@ class TimelineItem(typing.TypedDict):
     title: str
     rendered_html: str
     metadata: dict[str, object]
+
+
+class DailyGroup(typing.TypedDict):
+    date: datetime.date
+    date_label: str
+    entries: list[str]
+
+
+class WeekGroup(typing.TypedDict):
+    week: str
+    period_start: datetime.date
+    period_end: datetime.date
+    summary_label: str
+    metrics: dict[str, object]
+    weekly_summary_html: str | None
+    daily_groups: list[DailyGroup]
 
 
 def parse_frontmatter(text: str) -> tuple[dict[str, object], str]:
@@ -62,6 +79,17 @@ def _parse_date_field(value: object) -> datetime.date | None:
         except ValueError:
             return None
     return None
+
+
+def _week_from_date(d: datetime.date) -> str:
+    iso = d.isocalendar()
+    return f"{iso.year}-W{iso.week:02d}"
+
+
+def _week_date_range(year: int, week: int) -> tuple[datetime.date, datetime.date]:
+    start = datetime.date.fromisocalendar(year, week, 1)
+    end = datetime.date.fromisocalendar(year, week, 7)
+    return start, end
 
 
 def get_active_work(vault_path: str) -> str:
@@ -129,7 +157,7 @@ def _get_weekly_items(vault_path: str, limit: int = 4) -> list[TimelineItem]:
 
         if item_date is None:
             stem = f.stem
-            match = re.match(r"(\d{4})-W(\d{2})", stem)
+            match = _WEEK_RE.match(stem)
             if match:
                 with contextlib.suppress(ValueError):
                     item_date = datetime.date.fromisocalendar(int(match.group(1)), int(match.group(2)), 1)
@@ -175,7 +203,7 @@ def get_retro_summaries(vault_path: str, limit: int = 4) -> list[TimelineItem]:
 
         if item_date is None:
             stem = f.stem
-            match = re.match(r"(\d{4})-W(\d{2})", stem)
+            match = _WEEK_RE.match(stem)
             if match:
                 with contextlib.suppress(ValueError):
                     item_date = datetime.date.fromisocalendar(int(match.group(1)), int(match.group(2)), 1)
@@ -202,3 +230,93 @@ def get_timeline(vault_path: str, limit: int = 20) -> list[TimelineItem]:
     items.extend(_get_weekly_items(vault_path, limit=limit))
     items.sort(key=lambda item: item["date"], reverse=True)
     return items[:limit]
+
+
+def _collect_daily_entries_for_date(entries_dir: pathlib.Path, target_date: str) -> list[str]:
+    entries: list[str] = []
+    for d in entries_dir.rglob(target_date):
+        if d.is_dir():
+            for f in sorted(d.glob("*.md")):
+                try:
+                    entries.append(markdown.render(f.read_text()))
+                except OSError:
+                    logger.warning("Could not read %s", f)
+    return entries
+
+
+def get_hierarchical_feed(vault_path: str, period: str = "week") -> list[WeekGroup]:
+    vault = pathlib.Path(vault_path)
+    entries_dir = vault / "journal" / "entries"
+    summaries_dir = vault / "journal" / "summaries" / "weekly"
+
+    weeks_to_show = {"week": 4, "month": 12, "all": 52}.get(period, 4)
+
+    today = datetime.date.today()
+
+    week_groups: list[WeekGroup] = []
+
+    for offset in range(weeks_to_show):
+        target = today - datetime.timedelta(weeks=offset)
+        iso = target.isocalendar()
+        week_label = f"{iso.year}-W{iso.week:02d}"
+
+        with contextlib.suppress(ValueError):
+            period_start, period_end = _week_date_range(iso.year, iso.week)
+
+            summary_html: str | None = None
+            metrics: dict[str, object] = {}
+
+            for sf in summaries_dir.rglob("*.md") if summaries_dir.exists() else []:
+                match = _WEEK_RE.match(sf.stem)
+                if match and int(match.group(1)) == iso.year and int(match.group(2)) == iso.week:
+                    try:
+                        meta, body = parse_frontmatter(sf.read_text())
+                        summary_html = markdown.render(body)
+                        raw_metrics = meta.get("metrics")
+                        if isinstance(raw_metrics, dict):
+                            metrics = raw_metrics
+                    except OSError:
+                        logger.warning("Could not read %s", sf)
+                    break
+
+            daily_groups: list[DailyGroup] = []
+            if entries_dir.exists():
+                for day_offset in range(7):
+                    day = period_start + datetime.timedelta(days=6 - day_offset)
+                    day_entries = _collect_daily_entries_for_date(entries_dir, day.isoformat())
+                    if day_entries:
+                        daily_groups.append(
+                            DailyGroup(
+                                date=day,
+                                date_label=day.strftime("%A, %b %d"),
+                                entries=day_entries,
+                            )
+                        )
+
+            if not summary_html and not daily_groups:
+                continue
+
+            metrics_parts: list[str] = []
+            commits = metrics.get("commits")
+            prs = metrics.get("prs_authored")
+            if isinstance(commits, int):
+                metrics_parts.append(f"{commits} commits")
+            if isinstance(prs, int):
+                metrics_parts.append(f"{prs} PRs")
+            metrics_suffix = f" -- {', '.join(metrics_parts)}" if metrics_parts else ""
+            date_range = f"{period_start.strftime('%b %d')}-{period_end.strftime('%b %d')}"
+            summary_label = f"W{iso.week:02d} ({date_range}){metrics_suffix}"
+
+            week_groups.append(
+                WeekGroup(
+                    week=week_label,
+                    period_start=period_start,
+                    period_end=period_end,
+                    summary_label=summary_label,
+                    metrics=metrics,
+                    weekly_summary_html=summary_html,
+                    daily_groups=daily_groups,
+                )
+            )
+
+    return week_groups

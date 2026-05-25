@@ -343,6 +343,148 @@ h2 {
     margin: 0;
 }
 
+.period-filter {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.period-btn {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.3em 0.8em;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.period-btn:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+}
+
+.period-btn.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.week-group {
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0;
+}
+
+.week-group:last-child {
+    border-bottom: none;
+}
+
+.week-summary {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0.5rem 0;
+}
+
+.week-summary:hover {
+    color: var(--accent);
+}
+
+.week-content {
+    padding: 0.75rem 0 0.75rem 1rem;
+}
+
+.week-summary-body {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.day-group {
+    margin-bottom: 0.5rem;
+}
+
+.day-summary {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem 0;
+}
+
+.day-summary:hover {
+    color: var(--text);
+}
+
+.day-content {
+    padding: 0.5rem 0 0.5rem 1rem;
+}
+
+.week-links {
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.week-links a {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.week-links a:hover {
+    text-decoration: underline;
+}
+
+.retro-card {
+    cursor: default;
+}
+
+.retro-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.retro-title {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.retro-body {
+    padding-top: 1rem;
+}
+
+.metrics-table {
+    width: auto;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+}
+
+.metrics-table th,
+.metrics-table td {
+    border: 1px solid var(--border);
+    padding: 0.35rem 0.75rem;
+    text-align: left;
+}
+
+.metrics-table th {
+    background: var(--bg);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
 @media (max-width: 640px) {
     .nav-inner {
         flex-direction: column;

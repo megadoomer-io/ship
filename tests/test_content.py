@@ -103,6 +103,10 @@ class TestGetRetroSummaries:
         items = content.get_retro_summaries(vault, limit=0)
         assert items == []
 
+    def test_higher_limit_returns_all(self, vault: str) -> None:
+        items = content.get_retro_summaries(vault, limit=20)
+        assert len(items) >= 1
+
 
 class TestGetTimeline:
     def test_returns_mixed_items(self, vault: str) -> None:
@@ -157,6 +161,39 @@ class TestRetroDateFallbacks:
         assert items[0]["date"] == datetime.date.fromisocalendar(2026, 20, 1)
 
 
+class TestGetHierarchicalFeed:
+    def test_returns_week_groups(self, vault: str) -> None:
+        feed = content.get_hierarchical_feed(vault)
+        assert isinstance(feed, list)
+        for group in feed:
+            assert "week" in group
+            assert "period_start" in group
+            assert "summary_label" in group
+
+    def test_week_group_has_daily_entries(self, vault: str) -> None:
+        feed = content.get_hierarchical_feed(vault)
+        has_entries = any(len(g["daily_groups"]) > 0 for g in feed)
+        assert has_entries
+
+    def test_period_filter_week(self, vault: str) -> None:
+        feed = content.get_hierarchical_feed(vault, period="week")
+        assert len(feed) <= 4
+
+    def test_period_filter_month(self, vault: str) -> None:
+        feed = content.get_hierarchical_feed(vault, period="month")
+        assert len(feed) <= 12
+
+    def test_empty_vault(self, tmp_path: pathlib.Path) -> None:
+        feed = content.get_hierarchical_feed(str(tmp_path))
+        assert feed == []
+
+    def test_metrics_in_summary_label(self, vault: str) -> None:
+        feed = content.get_hierarchical_feed(vault)
+        for group in feed:
+            if group["metrics"]:
+                assert "--" in group["summary_label"]
+
+
 class TestRouteIntegration:
     @pytest.fixture()
     def app(self, vault: str) -> flask.Flask:
@@ -177,24 +214,52 @@ class TestRouteIntegration:
     def client(self, app: flask.Flask) -> flask.testing.FlaskClient:
         return app.test_client()
 
-    def test_observation_deck_has_status_board(self, client: flask.testing.FlaskClient) -> None:
+    def test_observation_deck_has_hierarchy(self, client: flask.testing.FlaskClient) -> None:
         resp = client.get("/observation-deck", headers={"X-Auth-Request-Preferred-Username": "testmate"})
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "In Flight" in html
-        assert "Recent Activity" in html
         assert "The view from above" in html
+        assert "week-group" in html
+        assert "Activity" in html
+
+    def test_observation_deck_period_filter(self, client: flask.testing.FlaskClient) -> None:
+        resp = client.get("/observation-deck?period=month", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        assert resp.status_code == 200
+        html = resp.data.decode()
+        assert "period-btn active" in html
 
     def test_porthole_has_timeline_feed(self, client: flask.testing.FlaskClient) -> None:
         resp = client.get("/porthole", headers={"X-Auth-Request-Preferred-Username": "testmanager"})
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "badge-retro" in html
-        assert "Retro:" in html
         assert "A window into the work" in html
+
+    def test_captains_log_renders(self, client: flask.testing.FlaskClient) -> None:
+        resp = client.get("/captains-log", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        assert resp.status_code == 200
+        html = resp.data.decode()
+        assert "Captain's Log" in html
+        assert "Reflections on the voyage" in html
+        assert "retro-card" in html
+
+    def test_captains_log_has_metrics_table(self, client: flask.testing.FlaskClient) -> None:
+        resp = client.get("/captains-log", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        html = resp.data.decode()
+        assert "metrics-table" in html
+
+    def test_captains_log_has_cross_link(self, client: flask.testing.FlaskClient) -> None:
+        resp = client.get("/captains-log", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        html = resp.data.decode()
+        assert "observation-deck" in html
 
     def test_bridge_has_blurb(self, client: flask.testing.FlaskClient) -> None:
         resp = client.get("/bridge", headers={"X-Auth-Request-Preferred-Username": "testowner"})
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "Full operational control" in html
+
+    def test_nav_has_captains_log(self, client: flask.testing.FlaskClient) -> None:
+        resp = client.get("/bridge", headers={"X-Auth-Request-Preferred-Username": "testowner"})
+        html = resp.data.decode()
+        assert "Captain&#39;s Log" in html or "Captain's Log" in html

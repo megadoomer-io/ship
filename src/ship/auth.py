@@ -13,6 +13,7 @@ ROUTE_MINIMUM_ROLE: dict[str, Role] = {
     "ship.bridge": Role.OWNER,
     "ship.porthole": Role.MANAGER,
     "ship.observation_deck": Role.TEAMMATE,
+    "ship.captains_log": Role.TEAMMATE,
     "ship.index": Role.TEAMMATE,
 }
 
