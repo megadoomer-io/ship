@@ -4,17 +4,31 @@
 {% block content %}
 <h1>Porthole</h1>
 
-{% if weekly_summary %}
-<section class="card">
-    <h2>This Week</h2>
-    <div class="rendered-content">{{ weekly_summary | safe }}</div>
-</section>
-{% endif %}
-
 {% if active_work %}
 <section class="card">
     <h2>In Flight</h2>
     <div class="rendered-content">{{ active_work | safe }}</div>
+</section>
+{% endif %}
+
+{% if timeline %}
+<section class="card">
+    <h2>Recent Activity</h2>
+    {% for item in timeline %}
+    <div class="timeline-compact">
+        <span class="badge badge-{{ item.content_type }}">{{ item.content_type }}</span>
+        <span class="timeline-title-inline">{{ item.title }}</span>
+        <time class="timeline-date-inline">{{ item.date.strftime('%b %d') }}</time>
+    </div>
+    {% if not loop.last %}<hr class="timeline-divider">{% endif %}
+    {% endfor %}
+</section>
+{% endif %}
+
+{% if weekly_summary %}
+<section class="card">
+    <h2>This Week</h2>
+    <div class="rendered-content">{{ weekly_summary | safe }}</div>
 </section>
 {% endif %}
 {% endblock %}
