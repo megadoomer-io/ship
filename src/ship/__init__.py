@@ -1,6 +1,7 @@
 import os
 
 import flask
+import flask_compress
 
 from ship import auth, routes, vault
 
@@ -18,10 +19,14 @@ def create_app() -> flask.Flask:
     app.config["OWNER_GITHUB_USER"] = os.environ.get("SHIP_OWNER_GITHUB_USER", "")
     app.config["PULL_INTERVAL_SECONDS"] = int(os.environ.get("SHIP_PULL_INTERVAL_SECONDS", "300"))
 
+    app.config["COMPRESS_MIMETYPES"] = ["text/html", "text/css", "application/json"]
+    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 3600
+
     app.config["AUTH_OWNERS"] = auth.parse_user_list(os.environ.get("SHIP_OWNERS", app.config["OWNER_GITHUB_USER"]))
     app.config["AUTH_MANAGERS"] = auth.parse_user_list(os.environ.get("SHIP_MANAGERS", ""))
     app.config["AUTH_TEAMMATES"] = auth.parse_user_list(os.environ.get("SHIP_TEAMMATES", ""))
 
+    flask_compress.Compress(app)
     app.register_blueprint(routes.bp)
     app.before_request(auth.enforce_auth)
     app.register_error_handler(401, auth.handle_401)
