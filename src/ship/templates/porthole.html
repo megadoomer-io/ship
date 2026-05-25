@@ -3,32 +3,22 @@
 
 {% block content %}
 <h1>Porthole</h1>
-
-{% if active_work %}
-<section class="card">
-    <h2>In Flight</h2>
-    <div class="rendered-content">{{ active_work | safe }}</div>
-</section>
-{% endif %}
+<p class="page-blurb">A window into the work. Retros and summaries, distilled.</p>
 
 {% if timeline %}
-<section class="card">
-    <h2>Recent Activity</h2>
-    {% for item in timeline %}
-    <div class="timeline-compact">
+{% for item in timeline %}
+<section class="card timeline-card">
+    <div class="timeline-header">
         <span class="badge badge-{{ item.content_type }}">{{ item.content_type }}</span>
-        <span class="timeline-title-inline">{{ item.title }}</span>
-        <time class="timeline-date-inline">{{ item.date.strftime('%b %d') }}</time>
+        <time class="timeline-date">{{ item.date.strftime('%b %d, %Y') }}</time>
     </div>
-    {% if not loop.last %}<hr class="timeline-divider">{% endif %}
-    {% endfor %}
+    <h2 class="timeline-title">{{ item.title }}</h2>
+    <div class="rendered-content">{{ item.rendered_html | safe }}</div>
 </section>
-{% endif %}
-
-{% if weekly_summary %}
+{% endfor %}
+{% else %}
 <section class="card">
-    <h2>This Week</h2>
-    <div class="rendered-content">{{ weekly_summary | safe }}</div>
+    <p class="text-muted">No timeline content yet. Content appears here as retros and summaries are generated.</p>
 </section>
 {% endif %}
 {% endblock %}

@@ -177,15 +177,24 @@ class TestRouteIntegration:
     def client(self, app: flask.Flask) -> flask.testing.FlaskClient:
         return app.test_client()
 
-    def test_observation_deck_has_timeline(self, client: flask.testing.FlaskClient) -> None:
+    def test_observation_deck_has_status_board(self, client: flask.testing.FlaskClient) -> None:
         resp = client.get("/observation-deck", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        assert resp.status_code == 200
+        html = resp.data.decode()
+        assert "In Flight" in html
+        assert "Recent Activity" in html
+        assert "The view from above" in html
+
+    def test_porthole_has_timeline_feed(self, client: flask.testing.FlaskClient) -> None:
+        resp = client.get("/porthole", headers={"X-Auth-Request-Preferred-Username": "testmanager"})
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "badge-retro" in html
         assert "Retro:" in html
+        assert "A window into the work" in html
 
-    def test_porthole_has_timeline(self, client: flask.testing.FlaskClient) -> None:
-        resp = client.get("/porthole", headers={"X-Auth-Request-Preferred-Username": "testmanager"})
+    def test_bridge_has_blurb(self, client: flask.testing.FlaskClient) -> None:
+        resp = client.get("/bridge", headers={"X-Auth-Request-Preferred-Username": "testowner"})
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "Recent Activity" in html
+        assert "Full operational control" in html
