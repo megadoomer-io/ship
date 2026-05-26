@@ -39,6 +39,25 @@ make format    # Auto-format with ruff
 
 Push to main triggers: build image -> push to GHCR -> update megadoomer-config -> ArgoCD auto-sync. The app is live at megadoomer.io/ship/.
 
+### Post-deploy validation
+
+Run the smoke test after routing or infrastructure changes:
+```bash
+~/src/github.com/megadoomer-io/megadoomer-config/scripts/smoke-test-megadoomer.sh
+```
+
+### Known CI race condition
+
+Ship and Portal CI workflows update megadoomer-config's image tag via `kustomize edit set image` + push. If megadoomer-config was modified by another push between CI's clone and push, the CI push fails with "rejected (fetch first)." The image is built and in GHCR; only the tag update fails. Fix: manually update the tag with `kustomize edit set image` in the megadoomer-config repo, or re-run the failed workflow.
+
+### Routing architecture
+
+All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPRoutes) then to nginx-ingress (Kubernetes Ingress). Auth is controlled at the Ingress level, not the gateway level. nginx-gateway-fabric does not reliably handle path priority between rules in the same or across HTTPRoutes for a shared hostname.
+
+- Ship: `/ship/*` -> nginx-ingress -> auth Ingress (`ship-web`) or no-auth Ingress (`ship-healthz`, `ship-static`)
+- Portal: `/*` -> nginx-ingress -> no-auth Ingress (`portal-public`) or auth Ingress (`portal-services`)
+- oauth2: `/oauth2/*` -> nginx-ingress -> ExternalName service to oauth2-proxy
+
 ## TODOs
 
 - [ ] Multi-source vault support (see docs/decisions/2026-05-22-multi-source-vaults.md)
