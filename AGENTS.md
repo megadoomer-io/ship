@@ -45,3 +45,4 @@ Push to main triggers: build image -> push to GHCR -> update megadoomer-config -
 - [ ] Retro summary rendering on observation deck (pending /work-summarize skill update)
 - [ ] SHIP_API_TOKEN: token-based auth bypass for automated tools (browse daemon benchmarking, monitoring). Skip oauth2-proxy when the right header is present.
 - [ ] /static/ auth bypass in megadoomer-config HTTPRoute (route directly to ship pod, skip nginx-ingress + oauth2-proxy)
+- [ ] DESIGN.md: formalize megadoomer.io visual language (colors, typography, spacing, component patterns) after domain consolidation ships. Run /design-consultation to create it, then /plan-design-review to audit ship+portal against it.
