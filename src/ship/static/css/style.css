@@ -1,98 +1,8 @@
-:root {
-    --bg: #0a0a0f;
-    --bg-card: #12121a;
-    --text: #c8c8d0;
-    --text-muted: #6a6a7a;
-    --accent: #2ecc71;
-    --accent-secondary: #e84393;
-    --border: #1e1e2a;
-    --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', monospace;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-}
-
-@media (prefers-color-scheme: light) {
-    :root {
-        --bg: #f5f5f7;
-        --bg-card: #ffffff;
-        --text: #1a1a2e;
-        --text-muted: #6a6a7a;
-        --accent: #1a9c54;
-        --accent-secondary: #c0357a;
-        --border: #e0e0e5;
-    }
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: var(--font-sans);
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.nav {
-    position: sticky;
-    top: 0;
-    background: var(--bg-card);
-    border-bottom: 1px solid var(--border);
-    z-index: 10;
-}
-
-.nav-inner {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0.75rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-}
-
-.nav-brand {
-    font-family: var(--font-mono);
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--accent);
-    text-decoration: none;
-}
-
-.nav-links {
-    display: flex;
-    gap: 1rem;
-}
-
-.nav-link {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    text-decoration: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: color 0.15s, background 0.15s;
-}
-
-.nav-link:hover {
-    color: var(--text);
-}
-
-.nav-link.active {
-    color: var(--accent);
-    background: rgba(46, 204, 113, 0.1);
-}
+/* Ship-specific styles. Shared variables come from /static/shared.css */
 
 .content {
     max-width: 960px;
-    margin: 0 auto;
     padding: 2rem 1.5rem;
-    width: 100%;
-    flex: 1;
 }
 
 h1 {
@@ -157,9 +67,7 @@ h2 {
     margin-top: 0;
 }
 
-.rendered-content p {
-    margin-bottom: 0.75rem;
-}
+.rendered-content p { margin-bottom: 0.75rem; }
 
 .rendered-content ul,
 .rendered-content ol {
@@ -167,9 +75,7 @@ h2 {
     padding-left: 1.5rem;
 }
 
-.rendered-content li {
-    margin-bottom: 0.25rem;
-}
+.rendered-content li { margin-bottom: 0.25rem; }
 
 .rendered-content li ul,
 .rendered-content li ol {
@@ -184,9 +90,7 @@ h2 {
     transition: border-color 0.15s;
 }
 
-.rendered-content a:hover {
-    border-bottom-color: var(--accent);
-}
+.rendered-content a:hover { border-bottom-color: var(--accent); }
 
 .rendered-content code {
     font-family: var(--font-mono);
@@ -205,10 +109,7 @@ h2 {
     margin-bottom: 0.75rem;
 }
 
-.rendered-content pre code {
-    background: none;
-    padding: 0;
-}
+.rendered-content pre code { background: none; padding: 0; }
 
 .rendered-content blockquote {
     border-left: 3px solid var(--accent);
@@ -247,9 +148,7 @@ h2 {
     margin-left: -1.5rem;
 }
 
-.rendered-content .task-list-item input[type="checkbox"] {
-    margin-right: 0.5rem;
-}
+.rendered-content .task-list-item input[type="checkbox"] { margin-right: 0.5rem; }
 
 .tag {
     font-family: var(--font-mono);
@@ -260,18 +159,8 @@ h2 {
     border-radius: 3px;
 }
 
-.footer {
-    text-align: center;
-    padding: 1.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    border-top: 1px solid var(--border);
-}
-
-.timeline-card {
-    position: relative;
-}
+/* Timeline */
+.timeline-card { position: relative; }
 
 .timeline-header {
     display: flex;
@@ -343,6 +232,7 @@ h2 {
     margin: 0;
 }
 
+/* Period filter */
 .period-filter {
     display: flex;
     gap: 0.5rem;
@@ -371,14 +261,13 @@ h2 {
     background: rgba(46, 204, 113, 0.1);
 }
 
+/* Hierarchical feed */
 .week-group {
     border-bottom: 1px solid var(--border);
     padding: 0.5rem 0;
 }
 
-.week-group:last-child {
-    border-bottom: none;
-}
+.week-group:last-child { border-bottom: none; }
 
 .week-summary {
     font-family: var(--font-mono);
@@ -389,13 +278,8 @@ h2 {
     padding: 0.5rem 0;
 }
 
-.week-summary:hover {
-    color: var(--accent);
-}
-
-.week-content {
-    padding: 0.75rem 0 0.75rem 1rem;
-}
+.week-summary:hover { color: var(--accent); }
+.week-content { padding: 0.75rem 0 0.75rem 1rem; }
 
 .week-summary-body {
     margin-bottom: 1rem;
@@ -403,9 +287,7 @@ h2 {
     border-bottom: 1px solid var(--border);
 }
 
-.day-group {
-    margin-bottom: 0.5rem;
-}
+.day-group { margin-bottom: 0.5rem; }
 
 .day-summary {
     font-family: var(--font-mono);
@@ -415,13 +297,8 @@ h2 {
     padding: 0.25rem 0;
 }
 
-.day-summary:hover {
-    color: var(--text);
-}
-
-.day-content {
-    padding: 0.5rem 0 0.5rem 1rem;
-}
+.day-summary:hover { color: var(--text); }
+.day-content { padding: 0.5rem 0 0.5rem 1rem; }
 
 .week-links {
     margin-top: 0.75rem;
@@ -436,13 +313,10 @@ h2 {
     text-decoration: none;
 }
 
-.week-links a:hover {
-    text-decoration: underline;
-}
+.week-links a:hover { text-decoration: underline; }
 
-.retro-card {
-    cursor: default;
-}
+/* Captain's log */
+.retro-card { cursor: default; }
 
 .retro-summary {
     display: flex;
@@ -458,9 +332,7 @@ h2 {
     font-weight: 600;
 }
 
-.retro-body {
-    padding-top: 1rem;
-}
+.retro-body { padding-top: 1rem; }
 
 .metrics-table {
     width: auto;
@@ -486,17 +358,6 @@ h2 {
 }
 
 @media (max-width: 640px) {
-    .nav-inner {
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: flex-start;
-    }
-
-    .content {
-        padding: 1rem;
-    }
-
-    .card {
-        padding: 1rem;
-    }
+    .content { padding: 1rem; }
+    .card { padding: 1rem; }
 }

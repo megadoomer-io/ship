@@ -4,32 +4,59 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Ship — {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/shared.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <nav class="nav">
-        <div class="nav-inner">
-            <a href="/" class="nav-brand">Ship</a>
-            <div class="nav-links">
+    <nav class="shared-nav">
+        <div class="shared-nav-inner">
+            <a href="/" class="shared-nav-brand">megadoomer<span class="brand-accent">.io</span></a>
+            <button class="hamburger-toggle" onclick="document.querySelector('.shared-nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
+            <div class="shared-nav-links">
+                <a href="/" class="shared-nav-link">Home</a>
                 {% if role and role.value >= 3 %}
-                <a href="{{ url_for('ship.bridge') }}" class="nav-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge</a>
+                <a href="{{ url_for('ship.bridge') }}" class="shared-nav-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge</a>
                 {% endif %}
                 {% if role and role.value >= 2 %}
-                <a href="{{ url_for('ship.porthole') }}" class="nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole</a>
+                <a href="{{ url_for('ship.porthole') }}" class="shared-nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole</a>
                 {% endif %}
                 {% if role %}
-                <a href="{{ url_for('ship.observation_deck') }}" class="nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Observation Deck</a>
-                <a href="{{ url_for('ship.captains_log') }}" class="nav-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log</a>
+                <a href="{{ url_for('ship.observation_deck') }}" class="shared-nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Observation Deck</a>
+                <a href="{{ url_for('ship.captains_log') }}" class="shared-nav-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log</a>
                 {% endif %}
-                <span class="nav-user">{{ user }}</span>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">&#9790;</button>
             </div>
         </div>
     </nav>
-    <main class="content">
+    {% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="/">megadoomer.io</a><span class="sep">/</span><a href="{{ url_for('ship.index') }}">Ship</a>{% block crumb %}<span class="sep">/</span>{% endblock %}
+    </div>
+    {% endblock %}
+    <main class="shared-content content">
         {% block content %}{% endblock %}
     </main>
-    <footer class="footer">
-        Ship v0.1.0
+    <footer class="shared-footer">
+        <a href="https://github.com/mikedougherty/ship/issues" class="feedback-link">&#9998; Feedback</a>
+        &nbsp;&middot;&nbsp; Ship v0.1.0
     </footer>
+    <script>
+        function toggleTheme() {
+            var html = document.documentElement;
+            var current = html.getAttribute('data-theme');
+            var next = current === 'dark' ? 'light' : (current === 'light' ? 'dark' : 'dark');
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.querySelector('.theme-toggle').textContent = next === 'dark' ? '☾' : '☀';
+        }
+        (function() {
+            var saved = localStorage.getItem('theme');
+            if (saved) {
+                document.documentElement.setAttribute('data-theme', saved);
+                var btn = document.querySelector('.theme-toggle');
+                if (btn) btn.textContent = saved === 'dark' ? '☾' : '☀';
+            }
+        })();
+    </script>
 </body>
 </html>

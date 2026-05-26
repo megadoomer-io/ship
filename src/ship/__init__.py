@@ -4,6 +4,7 @@ import flask
 import flask_compress
 
 from ship import auth, routes, vault
+from ship.middleware import PathPrefixMiddleware
 
 
 def create_app() -> flask.Flask:
@@ -34,5 +35,7 @@ def create_app() -> flask.Flask:
 
     if not app.config.get("TESTING"):
         vault.start_sync(app)
+
+    app.wsgi_app = PathPrefixMiddleware(app.wsgi_app)  # type: ignore[method-assign]
 
     return app
