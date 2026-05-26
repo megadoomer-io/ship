@@ -30,7 +30,7 @@
     </nav>
     {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="/">megadoomer.io</a><span class="sep">/</span><a href="{{ url_for('ship.index') }}">Ship</a>{% block crumb %}<span class="sep">/</span>{% endblock %}
+        <a href="/">megadoomer.io</a><span class="sep">/</span><a href="{{ url_for('ship.index') }}">Ship</a>{% block crumb %}{% endblock %}
     </div>
     {% endblock %}
     <main class="shared-content content">
