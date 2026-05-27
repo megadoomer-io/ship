@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Sign In{% endblock %}
+{% block crumb %}<span class="sep">/</span>Sign In{% endblock %}
+{% block content %}
+<h1>Welcome to Ship</h1>
+<p>Sign in with your GitHub account to come aboard.</p>
+<a href="https://auth.megadoomer.io/oauth2/start?rd=https://megadoomer.io{{ request.path }}" class="btn-login">Sign in with GitHub</a>
+{% endblock %}

@@ -5,7 +5,7 @@ run:
 
 dev:
 	uv run python -c "from ship.dev import create_mock_vault; create_mock_vault('/tmp/ship-dev-vault')"
-	SHIP_VAULT_PATH=/tmp/ship-dev-vault SHIP_OWNER_GITHUB_USER=dev uv run flask --app ship run --debug
+	SHIP_VAULT_PATH=/tmp/ship-dev-vault SHIP_API_TOKEN=dev-token uv run flask --app ship run --debug
 
 test:
 	uv run pytest

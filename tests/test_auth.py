@@ -1,87 +1,82 @@
 import pytest
 
-from ship.auth import Role, check_route_access, get_user_role, parse_user_list
+from ship.auth import Role, check_route_access, parse_groups, resolve_role, role_label
 
 # ---------------------------------------------------------------------------
-# parse_user_list
+# parse_groups
 # ---------------------------------------------------------------------------
 
 
-class TestParseUserList:
+class TestParseGroups:
     def test_empty_string(self):
-        assert parse_user_list("") == frozenset()
+        assert parse_groups("") == []
 
-    def test_single_user(self):
-        assert parse_user_list("alice") == frozenset({"alice"})
+    def test_single_group(self):
+        assert parse_groups("megadoomer-io:megadoomer-ship") == ["megadoomer-io:megadoomer-ship"]
 
-    def test_multiple_users(self):
-        result = parse_user_list("alice,bob,carol")
-        assert result == frozenset({"alice", "bob", "carol"})
+    def test_multiple_groups(self):
+        result = parse_groups("megadoomer-io:megadoomer-ship,megadoomer-io:media")
+        assert result == ["megadoomer-io:megadoomer-ship", "megadoomer-io:media"]
 
     def test_whitespace_handling(self):
-        result = parse_user_list("  alice , bob , carol  ")
-        assert result == frozenset({"alice", "bob", "carol"})
-
-    def test_case_normalization(self):
-        result = parse_user_list("Alice,BOB,Carol")
-        assert result == frozenset({"alice", "bob", "carol"})
-
-    def test_trailing_comma(self):
-        result = parse_user_list("alice,bob,")
-        assert result == frozenset({"alice", "bob"})
+        result = parse_groups("  megadoomer-io:megadoomer-ship , megadoomer-io:media  ")
+        assert result == ["megadoomer-io:megadoomer-ship", "megadoomer-io:media"]
 
     def test_empty_entries_ignored(self):
-        result = parse_user_list("alice,,bob,,,carol")
-        assert result == frozenset({"alice", "bob", "carol"})
+        result = parse_groups("megadoomer-io:megadoomer-ship,,megadoomer-io:media")
+        assert result == ["megadoomer-io:megadoomer-ship", "megadoomer-io:media"]
 
 
 # ---------------------------------------------------------------------------
-# get_user_role
+# resolve_role
 # ---------------------------------------------------------------------------
 
 
-class TestGetUserRole:
-    @pytest.fixture()
-    def config(self) -> dict[str, object]:
-        return {
-            "AUTH_OWNERS": frozenset({"alice"}),
-            "AUTH_MANAGERS": frozenset({"bob"}),
-            "AUTH_TEAMMATES": frozenset({"carol"}),
-        }
+class TestResolveRole:
+    def test_captain(self):
+        groups = ["megadoomer-io:megadoomer-ship-captain", "megadoomer-io:megadoomer-ship"]
+        assert resolve_role(groups) == Role.CAPTAIN
 
-    def test_owner(self, config):
-        assert get_user_role(config, "alice") == Role.OWNER
+    def test_officers(self):
+        groups = ["megadoomer-io:megadoomer-ship-officers", "megadoomer-io:megadoomer-ship"]
+        assert resolve_role(groups) == Role.OFFICERS
 
-    def test_manager(self, config):
-        assert get_user_role(config, "bob") == Role.MANAGER
+    def test_crew(self):
+        groups = ["megadoomer-io:megadoomer-ship-crew", "megadoomer-io:megadoomer-ship"]
+        assert resolve_role(groups) == Role.CREW
 
-    def test_teammate(self, config):
-        assert get_user_role(config, "carol") == Role.TEAMMATE
+    def test_cargo(self):
+        groups = ["megadoomer-io:megadoomer-ship"]
+        assert resolve_role(groups) == Role.CARGO
 
-    def test_unlisted_user_returns_none(self, config):
-        assert get_user_role(config, "stranger") is None
+    def test_no_ship_groups(self):
+        groups = ["megadoomer-io:media", "megadoomer-io:resonance"]
+        assert resolve_role(groups) is None
 
-    def test_case_insensitive(self, config):
-        assert get_user_role(config, "ALICE") == Role.OWNER
-        assert get_user_role(config, "Bob") == Role.MANAGER
-        assert get_user_role(config, "CAROL") == Role.TEAMMATE
+    def test_empty_groups(self):
+        assert resolve_role([]) is None
 
-    def test_owner_takes_precedence_over_manager(self):
-        """A user listed in both owners and managers gets OWNER."""
-        config: dict[str, object] = {
-            "AUTH_OWNERS": frozenset({"alice"}),
-            "AUTH_MANAGERS": frozenset({"alice"}),
-            "AUTH_TEAMMATES": frozenset(),
-        }
-        assert get_user_role(config, "alice") == Role.OWNER
+    def test_captain_takes_precedence(self):
+        groups = [
+            "megadoomer-io:megadoomer-ship-captain",
+            "megadoomer-io:megadoomer-ship-officers",
+            "megadoomer-io:megadoomer-ship-crew",
+            "megadoomer-io:megadoomer-ship",
+        ]
+        assert resolve_role(groups) == Role.CAPTAIN
 
-    def test_empty_lists_returns_none(self):
-        config: dict[str, object] = {
-            "AUTH_OWNERS": frozenset(),
-            "AUTH_MANAGERS": frozenset(),
-            "AUTH_TEAMMATES": frozenset(),
-        }
-        assert get_user_role(config, "anyone") is None
+
+# ---------------------------------------------------------------------------
+# role_label
+# ---------------------------------------------------------------------------
+
+
+class TestRoleLabel:
+    def test_labels(self):
+        assert role_label(Role.CARGO) == "cargo"
+        assert role_label(Role.CREW) == "crew"
+        assert role_label(Role.OFFICERS) == "officers"
+        assert role_label(Role.CAPTAIN) == "captain"
 
 
 # ---------------------------------------------------------------------------
@@ -90,38 +85,42 @@ class TestGetUserRole:
 
 
 class TestCheckRouteAccess:
-    """Routes require minimum role: bridge=OWNER, porthole=MANAGER,
-    observation_deck=TEAMMATE, index=TEAMMATE."""
-
     @pytest.mark.parametrize(
         ("endpoint", "role", "expected"),
         [
-            # bridge — OWNER only
-            ("ship.bridge", Role.OWNER, True),
-            ("ship.bridge", Role.MANAGER, False),
-            ("ship.bridge", Role.TEAMMATE, False),
-            # porthole — MANAGER+
-            ("ship.porthole", Role.OWNER, True),
-            ("ship.porthole", Role.MANAGER, True),
-            ("ship.porthole", Role.TEAMMATE, False),
-            # observation_deck — TEAMMATE+
-            ("ship.observation_deck", Role.OWNER, True),
-            ("ship.observation_deck", Role.MANAGER, True),
-            ("ship.observation_deck", Role.TEAMMATE, True),
-            # index — TEAMMATE+
-            ("ship.index", Role.OWNER, True),
-            ("ship.index", Role.MANAGER, True),
-            ("ship.index", Role.TEAMMATE, True),
-            # healthz — not in ROUTE_MINIMUM_ROLE, so any role gets access
-            ("ship.healthz", Role.TEAMMATE, True),
+            # bridge -- CAPTAIN only
+            ("ship.bridge", Role.CAPTAIN, True),
+            ("ship.bridge", Role.OFFICERS, False),
+            ("ship.bridge", Role.CREW, False),
+            ("ship.bridge", Role.CARGO, False),
+            # observation_deck -- OFFICERS+
+            ("ship.observation_deck", Role.CAPTAIN, True),
+            ("ship.observation_deck", Role.OFFICERS, True),
+            ("ship.observation_deck", Role.CREW, False),
+            ("ship.observation_deck", Role.CARGO, False),
+            # porthole -- CREW+
+            ("ship.porthole", Role.CAPTAIN, True),
+            ("ship.porthole", Role.OFFICERS, True),
+            ("ship.porthole", Role.CREW, True),
+            ("ship.porthole", Role.CARGO, False),
+            # captains_log -- CREW+
+            ("ship.captains_log", Role.CAPTAIN, True),
+            ("ship.captains_log", Role.OFFICERS, True),
+            ("ship.captains_log", Role.CREW, True),
+            ("ship.captains_log", Role.CARGO, False),
+            # index -- CREW+
+            ("ship.index", Role.CAPTAIN, True),
+            ("ship.index", Role.CREW, True),
+            ("ship.index", Role.CARGO, False),
+            # healthz -- not in ROUTE_MINIMUM_ROLE, so any role gets access
+            ("ship.healthz", Role.CARGO, True),
         ],
     )
     def test_access_matrix(self, endpoint: str, role: Role, expected: bool):
         assert check_route_access(endpoint, role) is expected
 
     def test_none_endpoint_denied(self):
-        assert check_route_access(None, Role.OWNER) is False
+        assert check_route_access(None, Role.CAPTAIN) is False
 
     def test_unknown_endpoint_allowed(self):
-        """Endpoints not in ROUTE_MINIMUM_ROLE default to open."""
-        assert check_route_access("ship.some_unknown_route", Role.TEAMMATE) is True
+        assert check_route_access("ship.some_unknown_route", Role.CARGO) is True

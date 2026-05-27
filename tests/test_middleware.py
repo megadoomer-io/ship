@@ -129,9 +129,13 @@ class TestPathPrefixIntegration:
 
     def test_url_for_includes_prefix(self, prefixed_client: flask.testing.FlaskClient) -> None:
         """url_for generates URLs that include the prefix in redirects."""
+        _g = "megadoomer-io:megadoomer-ship"
         response = prefixed_client.get(
             "/ship/",
-            headers={"X-Auth-Request-User": "testowner"},
+            headers={
+                "X-Auth-Request-User": "testuser",
+                "X-Auth-Request-Groups": f"{_g}-captain,{_g}",
+            },
         )
         assert response.status_code == 302
         assert "/ship/bridge" in response.headers["Location"]

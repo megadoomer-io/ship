@@ -1,7 +1,9 @@
 import pytest
 
+from tests.conftest import CAPTAIN_GROUPS, CARGO_GROUPS, CREW_GROUPS, OFFICERS_GROUPS, auth_headers
+
 # ---------------------------------------------------------------------------
-# Healthz — no auth required
+# Healthz -- no auth required
 # ---------------------------------------------------------------------------
 
 
@@ -20,9 +22,9 @@ def test_healthz_includes_git_sha(client, monkeypatch):
     assert data["git_sha"] == "abc1234"
 
 
-@pytest.mark.parametrize("user", ["testowner", "testmanager", "testmate", "stranger"])
-def test_healthz_returns_200_for_any_user(client, user):
-    response = client.get("/healthz", headers={"X-Auth-Request-User": user})
+@pytest.mark.parametrize("groups", [CAPTAIN_GROUPS, OFFICERS_GROUPS, CREW_GROUPS, CARGO_GROUPS])
+def test_healthz_returns_200_for_any_role(client, groups):
+    response = client.get("/healthz", headers=auth_headers("testuser", groups))
     assert response.status_code == 200
 
 
@@ -31,21 +33,34 @@ def test_healthz_returns_200_for_any_user(client, user):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("path", ["/", "/bridge", "/porthole", "/observation-deck"])
+@pytest.mark.parametrize("path", ["/", "/bridge", "/porthole", "/observation-deck", "/captains-log"])
 def test_anonymous_gets_401(client, path):
     response = client.get(path)
+    assert response.status_code == 401
+    assert b"Sign in" in response.data
+
+
+# ---------------------------------------------------------------------------
+# Authenticated but no ship groups -> 401
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("path", ["/", "/bridge", "/porthole", "/observation-deck"])
+def test_no_ship_groups_gets_401(client, path):
+    response = client.get(path, headers=auth_headers("testuser", "megadoomer-io:media"))
     assert response.status_code == 401
 
 
 # ---------------------------------------------------------------------------
-# Authenticated but unlisted user -> 403 on all protected routes
+# Cargo (megadoomer-ship only, no sub-role) -> 403 on content routes
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("path", ["/", "/bridge", "/porthole", "/observation-deck"])
-def test_unlisted_user_gets_403(client, path):
-    response = client.get(path, headers={"X-Auth-Request-User": "stranger"})
+@pytest.mark.parametrize("path", ["/bridge", "/porthole", "/observation-deck", "/captains-log"])
+def test_cargo_gets_403(client, path):
+    response = client.get(path, headers=auth_headers("testuser", CARGO_GROUPS))
     assert response.status_code == 403
+    assert b"cargo hold" in response.data
 
 
 # ---------------------------------------------------------------------------
@@ -54,57 +69,65 @@ def test_unlisted_user_gets_403(client, path):
 
 
 class TestBridge:
-    """Bridge requires OWNER role."""
-
-    def test_owner_gets_200(self, client):
-        response = client.get("/bridge", headers={"X-Auth-Request-User": "testowner"})
+    def test_captain_gets_200(self, client):
+        response = client.get("/bridge", headers=auth_headers("testuser", CAPTAIN_GROUPS))
         assert response.status_code == 200
         assert b"Bridge" in response.data
 
-    def test_manager_gets_403(self, client):
-        response = client.get("/bridge", headers={"X-Auth-Request-User": "testmanager"})
+    def test_officers_gets_403(self, client):
+        response = client.get("/bridge", headers=auth_headers("testuser", OFFICERS_GROUPS))
         assert response.status_code == 403
 
-    def test_teammate_gets_403(self, client):
-        response = client.get("/bridge", headers={"X-Auth-Request-User": "testmate"})
-        assert response.status_code == 403
-
-
-class TestPorthole:
-    """Porthole requires MANAGER role (owner also has access)."""
-
-    def test_owner_gets_200(self, client):
-        response = client.get("/porthole", headers={"X-Auth-Request-User": "testowner"})
-        assert response.status_code == 200
-        assert b"Porthole" in response.data
-
-    def test_manager_gets_200(self, client):
-        response = client.get("/porthole", headers={"X-Auth-Request-User": "testmanager"})
-        assert response.status_code == 200
-        assert b"Porthole" in response.data
-
-    def test_teammate_gets_403(self, client):
-        response = client.get("/porthole", headers={"X-Auth-Request-User": "testmate"})
+    def test_crew_gets_403(self, client):
+        response = client.get("/bridge", headers=auth_headers("testuser", CREW_GROUPS))
         assert response.status_code == 403
 
 
 class TestObservationDeck:
-    """Observation deck requires TEAMMATE role (all listed users have access)."""
-
-    def test_owner_gets_200(self, client):
-        response = client.get("/observation-deck", headers={"X-Auth-Request-User": "testowner"})
+    def test_captain_gets_200(self, client):
+        response = client.get("/observation-deck", headers=auth_headers("testuser", CAPTAIN_GROUPS))
         assert response.status_code == 200
         assert b"Observation Deck" in response.data
 
-    def test_manager_gets_200(self, client):
-        response = client.get("/observation-deck", headers={"X-Auth-Request-User": "testmanager"})
+    def test_officers_gets_200(self, client):
+        response = client.get("/observation-deck", headers=auth_headers("testuser", OFFICERS_GROUPS))
         assert response.status_code == 200
         assert b"Observation Deck" in response.data
 
-    def test_teammate_gets_200(self, client):
-        response = client.get("/observation-deck", headers={"X-Auth-Request-User": "testmate"})
+    def test_crew_gets_403(self, client):
+        response = client.get("/observation-deck", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 403
+
+
+class TestPorthole:
+    def test_captain_gets_200(self, client):
+        response = client.get("/porthole", headers=auth_headers("testuser", CAPTAIN_GROUPS))
         assert response.status_code == 200
-        assert b"Observation Deck" in response.data
+        assert b"Porthole" in response.data
+
+    def test_officers_gets_200(self, client):
+        response = client.get("/porthole", headers=auth_headers("testuser", OFFICERS_GROUPS))
+        assert response.status_code == 200
+        assert b"Porthole" in response.data
+
+    def test_crew_gets_200(self, client):
+        response = client.get("/porthole", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+        assert b"Porthole" in response.data
+
+
+class TestCaptainsLog:
+    def test_captain_gets_200(self, client):
+        response = client.get("/captains-log", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 200
+
+    def test_crew_gets_200(self, client):
+        response = client.get("/captains-log", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+
+    def test_cargo_gets_403(self, client):
+        response = client.get("/captains-log", headers=auth_headers("testuser", CARGO_GROUPS))
+        assert response.status_code == 403
 
 
 # ---------------------------------------------------------------------------
@@ -113,19 +136,77 @@ class TestObservationDeck:
 
 
 class TestIndexRedirects:
-    """Index redirects to the highest-access page for each role."""
-
-    def test_owner_redirects_to_bridge(self, client):
-        response = client.get("/", headers={"X-Auth-Request-User": "testowner"})
+    def test_captain_redirects_to_bridge(self, client):
+        response = client.get("/", headers=auth_headers("testuser", CAPTAIN_GROUPS))
         assert response.status_code == 302
         assert "/bridge" in response.headers["Location"]
 
-    def test_manager_redirects_to_porthole(self, client):
-        response = client.get("/", headers={"X-Auth-Request-User": "testmanager"})
+    def test_officers_redirects_to_observation_deck(self, client):
+        response = client.get("/", headers=auth_headers("testuser", OFFICERS_GROUPS))
+        assert response.status_code == 302
+        assert "/observation-deck" in response.headers["Location"]
+
+    def test_crew_redirects_to_porthole(self, client):
+        response = client.get("/", headers=auth_headers("testuser", CREW_GROUPS))
         assert response.status_code == 302
         assert "/porthole" in response.headers["Location"]
 
-    def test_teammate_redirects_to_observation_deck(self, client):
-        response = client.get("/", headers={"X-Auth-Request-User": "testmate"})
-        assert response.status_code == 302
-        assert "/observation-deck" in response.headers["Location"]
+
+# ---------------------------------------------------------------------------
+# API token auth
+# ---------------------------------------------------------------------------
+
+
+class TestApiToken:
+    def test_x_ship_token_header(self, client):
+        response = client.get("/bridge", headers={"X-Ship-Token": "test-api-token-secret"})
+        assert response.status_code == 200
+
+    def test_bearer_token(self, client):
+        response = client.get("/bridge", headers={"Authorization": "Bearer test-api-token-secret"})
+        assert response.status_code == 200
+
+    def test_invalid_token_gets_401(self, client):
+        response = client.get("/bridge", headers={"X-Ship-Token": "wrong-token"})
+        assert response.status_code == 401
+
+    def test_empty_token_config_disables_api_auth(self, client):
+        client.application.config["API_TOKEN"] = ""
+        response = client.get("/bridge", headers={"X-Ship-Token": ""})
+        assert response.status_code == 401
+
+
+# ---------------------------------------------------------------------------
+# View-as
+# ---------------------------------------------------------------------------
+
+
+class TestViewAs:
+    def test_captain_can_view_as_crew(self, client):
+        response = client.get("/porthole?view_as=crew", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 200
+
+    def test_view_as_denies_restricted_page(self, client):
+        response = client.get("/bridge?view_as=crew", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 403
+
+    def test_view_as_persists_in_session(self, client):
+        with client.session_transaction() as sess:
+            sess["view_as"] = "crew"
+        response = client.get("/bridge", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 403
+
+    def test_view_as_reset(self, client):
+        with client.session_transaction() as sess:
+            sess["view_as"] = "crew"
+        response = client.get("/bridge?view_as=reset", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 200
+
+    def test_cannot_view_as_higher_role(self, client):
+        response = client.get("/bridge?view_as=captain", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 403
+
+    def test_403_suggests_roles_when_viewing_as(self, client):
+        response = client.get("/bridge?view_as=crew", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 403
+        assert b"view_as=captain" in response.data or b"view_as=officers" in response.data
