@@ -65,3 +65,5 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - [x] SHIP_API_TOKEN: token-based auth bypass for automated tools (browse daemon benchmarking, monitoring). Skip oauth2-proxy when the right header is present.
 - [x] /static/ auth bypass in megadoomer-config HTTPRoute (route directly to ship pod, skip nginx-ingress + oauth2-proxy)
 - [ ] DESIGN.md: formalize megadoomer.io visual language (colors, typography, spacing, component patterns) after domain consolidation ships. Run /design-consultation to create it, then /plan-design-review to audit ship+portal against it.
+- [ ] HTML sanitization in markdown.render(): add nh3 or bleach allowlist if Ship ever ingests content from untrusted sources. Multi-source vault support is the trigger. Current single-owner vault is trusted input.
+- [ ] Remove `?token=` query param auth: header-based auth (X-Ship-Token) is sufficient and avoids log/history/Referer leakage. Low priority since query param only works via port-forward today.
