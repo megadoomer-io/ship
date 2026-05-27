@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Not Found{% endblock %}
+{% block crumb %}<span class="sep">/</span>Not Found{% endblock %}
+{% block content %}
+<h1>Page Not Found</h1>
+<p>Nothing at this heading. Check your course and try again.</p>
+{% if user %}
+<p>Signed in as <strong>{{ user }}</strong>.</p>
+{% endif %}
+{% endblock %}

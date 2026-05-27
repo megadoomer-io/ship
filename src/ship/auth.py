@@ -84,7 +84,7 @@ def get_effective_role(actual: Role) -> Role:
 
 def check_route_access(endpoint: str | None, role: Role) -> bool:
     if endpoint is None:
-        return False
+        return True
     minimum = ROUTE_MINIMUM_ROLE.get(endpoint)
     if minimum is None:
         return True
@@ -103,6 +103,8 @@ def enforce_auth() -> flask.Response | None:
         auth_header = flask.request.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
             token_header = auth_header[7:]
+    if not token_header:
+        token_header = flask.request.args.get("token")
 
     if api_token and token_header and secrets.compare_digest(api_token, token_header):
         flask.g.user = "_api"
@@ -158,6 +160,17 @@ def handle_403(error: Exception) -> tuple[str, int]:
         suggested_roles=suggested_roles,
         role_label=role_label,
     ), 403
+
+
+def handle_404(error: Exception) -> tuple[str, int]:
+    role = getattr(flask.g, "role", None)
+    actual_role = getattr(flask.g, "actual_role", None)
+    return flask.render_template(
+        "404.html",
+        user=getattr(flask.g, "user", None),
+        role=role,
+        actual_role=actual_role,
+    ), 404
 
 
 def handle_401(error: Exception) -> tuple[str, int]:
