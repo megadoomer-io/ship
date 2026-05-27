@@ -15,7 +15,7 @@ Key implications:
 - **Framework:** Flask with Jinja2 templates
 - **Markdown:** mistune 3.x with custom Obsidian preprocessor (`src/ship/markdown.py`)
 - **Vault sync:** Background git clone/pull via APScheduler (`src/ship/vault.py`)
-- **Auth:** Group-based roles via GitHub teams (Dex OIDC -> oauth2-proxy -> X-Auth-Request-Groups header). Roles: cargo < crew < officers < captain. Global `admins` group maps to CAPTAIN (dual-check accepts both `megadoomer-io:admins` and legacy `megadoomer-io:megadoomer-admins` during transition). API token bypass via X-Ship-Token header. View-as feature for role impersonation.
+- **Auth:** Group-based roles via GitHub teams (Dex OIDC -> oauth2-proxy -> X-Auth-Request-Groups header). Roles: cargo < crew < officers < captain. Global `admins` group maps to CAPTAIN. API token bypass via X-Ship-Token header. View-as feature for role impersonation.
 - **Deploy:** megadoomer-do cluster, ArgoCD auto-sync, GHCR images
 
 ## Conventions

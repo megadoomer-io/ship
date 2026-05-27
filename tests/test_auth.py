@@ -69,10 +69,6 @@ class TestResolveRole:
         groups = ["megadoomer-io:admins"]
         assert resolve_role(groups) == Role.CAPTAIN
 
-    def test_legacy_admins_resolves_to_captain(self):
-        groups = ["megadoomer-io:megadoomer-admins"]
-        assert resolve_role(groups) == Role.CAPTAIN
-
     def test_admins_without_ship_groups(self):
         groups = ["megadoomer-io:admins", "megadoomer-io:media"]
         assert resolve_role(groups) == Role.CAPTAIN
