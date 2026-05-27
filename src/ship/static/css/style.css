@@ -30,7 +30,7 @@ h2 {
 .card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1.5rem;
 }
@@ -97,13 +97,13 @@ h2 {
     font-size: 0.85em;
     background: var(--bg);
     padding: 0.15em 0.4em;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
 }
 
 .rendered-content pre {
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     padding: 1rem;
     overflow-x: auto;
     margin-bottom: 0.75rem;
@@ -154,9 +154,9 @@ h2 {
     font-family: var(--font-mono);
     font-size: 0.8em;
     color: var(--accent-secondary);
-    background: rgba(232, 67, 147, 0.1);
+    background: color-mix(in srgb, var(--accent-secondary), transparent 90%);
     padding: 0.1em 0.4em;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
 }
 
 /* Timeline */
@@ -190,20 +190,20 @@ h2 {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 0.2em 0.6em;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     white-space: nowrap;
 }
 
 .badge-retro {
     color: var(--accent);
-    background: rgba(46, 204, 113, 0.15);
-    border: 1px solid rgba(46, 204, 113, 0.3);
+    background: color-mix(in srgb, var(--accent), transparent 85%);
+    border: 1px solid color-mix(in srgb, var(--accent), transparent 70%);
 }
 
 .badge-weekly {
-    color: #3498db;
-    background: rgba(52, 152, 219, 0.15);
-    border: 1px solid rgba(52, 152, 219, 0.3);
+    color: var(--info);
+    background: color-mix(in srgb, var(--info), transparent 85%);
+    border: 1px solid color-mix(in srgb, var(--info), transparent 70%);
 }
 
 .timeline-compact {
@@ -246,7 +246,7 @@ h2 {
     text-decoration: none;
     padding: 0.3em 0.8em;
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
 
@@ -258,7 +258,7 @@ h2 {
 .period-btn.active {
     color: var(--accent);
     border-color: var(--accent);
-    background: rgba(46, 204, 113, 0.1);
+    background: color-mix(in srgb, var(--accent), transparent 90%);
 }
 
 /* Hierarchical feed */
@@ -376,13 +376,13 @@ h2 {
     text-decoration: none;
     padding: 0.15em 0.5em;
     border: 1px solid var(--border);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     font-size: 0.75rem;
 }
 
 .view-as-bar a:hover {
     border-color: var(--accent);
-    background: rgba(46, 204, 113, 0.1);
+    background: color-mix(in srgb, var(--accent), transparent 90%);
 }
 
 .view-as-reset { font-weight: 600; }
@@ -395,7 +395,7 @@ h2 {
     color: var(--bg);
     background: var(--accent);
     padding: 0.6em 1.5em;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     text-decoration: none;
     margin-top: 1rem;
     transition: opacity 0.15s;
@@ -419,12 +419,12 @@ h2 {
     font-size: 0.9rem;
     padding: 0.3em 0.8em;
     border: 1px solid var(--border);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
 }
 
 .role-suggestions a:hover {
     border-color: var(--accent);
-    background: rgba(46, 204, 113, 0.1);
+    background: color-mix(in srgb, var(--accent), transparent 90%);
 }
 
 @media (max-width: 640px) {
