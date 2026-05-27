@@ -31,6 +31,7 @@ def create_app() -> flask.Flask:
     app.before_request(auth.enforce_auth)
     app.register_error_handler(401, auth.handle_401)
     app.register_error_handler(403, auth.handle_403)
+    app.register_error_handler(404, auth.handle_404)
 
     if not app.config.get("TESTING"):
         vault.start_sync(app)

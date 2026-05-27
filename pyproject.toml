@@ -1,6 +1,6 @@
 [project]
 name = "ship"
-version = "0.1.0"
+version = "0.2.0"
 description = "Viewer for AI-curated Obsidian vault journal summaries"
 requires-python = ">=3.13"
 dependencies = [
@@ -49,3 +49,4 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--cov=ship --cov-branch --cov-report=term-missing"

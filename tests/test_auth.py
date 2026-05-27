@@ -136,8 +136,8 @@ class TestCheckRouteAccess:
     def test_access_matrix(self, endpoint: str, role: Role, expected: bool):
         assert check_route_access(endpoint, role) is expected
 
-    def test_none_endpoint_denied(self):
-        assert check_route_access(None, Role.CAPTAIN) is False
+    def test_none_endpoint_allowed(self):
+        assert check_route_access(None, Role.CAPTAIN) is True
 
     def test_unknown_endpoint_allowed(self):
         assert check_route_access("ship.some_unknown_route", Role.CARGO) is True

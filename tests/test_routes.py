@@ -170,6 +170,21 @@ class TestApiToken:
         response = client.get("/bridge", headers={"X-Ship-Token": "wrong-token"})
         assert response.status_code == 401
 
+    def test_query_param_token(self, client):
+        response = client.get("/bridge?token=test-api-token-secret")
+        assert response.status_code == 200
+
+    def test_invalid_query_param_token_gets_401(self, client):
+        response = client.get("/bridge?token=wrong-token")
+        assert response.status_code == 401
+
+    def test_header_takes_precedence_over_query_param(self, client):
+        response = client.get(
+            "/bridge?token=wrong-token",
+            headers={"X-Ship-Token": "test-api-token-secret"},
+        )
+        assert response.status_code == 200
+
     def test_empty_token_config_disables_api_auth(self, client):
         client.application.config["API_TOKEN"] = ""
         response = client.get("/bridge", headers={"X-Ship-Token": ""})
@@ -210,3 +225,23 @@ class TestViewAs:
         response = client.get("/bridge?view_as=crew", headers=auth_headers("testuser", CAPTAIN_GROUPS))
         assert response.status_code == 403
         assert b"view_as=captain" in response.data or b"view_as=officers" in response.data
+
+
+# ---------------------------------------------------------------------------
+# 404 handling
+# ---------------------------------------------------------------------------
+
+
+class TestNotFound:
+    def test_unknown_route_returns_404(self, client):
+        response = client.get("/nonexistent", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 404
+        assert b"Not Found" in response.data
+
+    def test_404_shows_username(self, client):
+        response = client.get("/nonexistent", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert b"testuser" in response.data
+
+    def test_404_without_auth_gets_401(self, client):
+        response = client.get("/nonexistent")
+        assert response.status_code == 401
