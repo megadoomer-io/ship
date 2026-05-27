@@ -65,6 +65,27 @@ class TestResolveRole:
         ]
         assert resolve_role(groups) == Role.CAPTAIN
 
+    def test_admins_resolves_to_captain(self):
+        groups = ["megadoomer-io:admins"]
+        assert resolve_role(groups) == Role.CAPTAIN
+
+    def test_legacy_admins_resolves_to_captain(self):
+        groups = ["megadoomer-io:megadoomer-admins"]
+        assert resolve_role(groups) == Role.CAPTAIN
+
+    def test_admins_without_ship_groups(self):
+        groups = ["megadoomer-io:admins", "megadoomer-io:media"]
+        assert resolve_role(groups) == Role.CAPTAIN
+
+    def test_admins_takes_priority_over_lower_ship_role(self):
+        groups = ["megadoomer-io:megadoomer-ship-crew", "megadoomer-io:admins"]
+        assert resolve_role(groups) == Role.CAPTAIN
+
+    def test_existing_ship_groups_unchanged(self):
+        assert resolve_role(["megadoomer-io:megadoomer-ship-officers"]) == Role.OFFICERS
+        assert resolve_role(["megadoomer-io:megadoomer-ship-crew"]) == Role.CREW
+        assert resolve_role(["megadoomer-io:megadoomer-ship"]) == Role.CARGO
+
 
 # ---------------------------------------------------------------------------
 # role_label

@@ -14,7 +14,14 @@ class Role(enum.IntEnum):
     CAPTAIN = 3
 
 
+ADMIN_GROUPS = (
+    f"{ORG_PREFIX}admins",
+    f"{ORG_PREFIX}megadoomer-admins",  # legacy, remove after GitHub team rename
+)
+
 ROLE_GROUPS: list[tuple[str, Role]] = [
+    (ADMIN_GROUPS[0], Role.CAPTAIN),
+    (ADMIN_GROUPS[1], Role.CAPTAIN),
     (f"{ORG_PREFIX}{SHIP_GROUP_PREFIX}-captain", Role.CAPTAIN),
     (f"{ORG_PREFIX}{SHIP_GROUP_PREFIX}-officers", Role.OFFICERS),
     (f"{ORG_PREFIX}{SHIP_GROUP_PREFIX}-crew", Role.CREW),
