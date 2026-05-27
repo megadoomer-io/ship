@@ -15,7 +15,7 @@ Key implications:
 - **Framework:** Flask with Jinja2 templates
 - **Markdown:** mistune 3.x with custom Obsidian preprocessor (`src/ship/markdown.py`)
 - **Vault sync:** Background git clone/pull via APScheduler (`src/ship/vault.py`)
-- **Auth:** oauth2-proxy headers (X-Auth-Request-User), no auth code in the app
+- **Auth:** Group-based roles via GitHub teams (Dex OIDC -> oauth2-proxy -> X-Auth-Request-Groups header). Roles: cargo < crew < officers < captain. API token bypass via X-Ship-Token header. View-as feature for role impersonation.
 - **Deploy:** megadoomer-do cluster, ArgoCD auto-sync, GHCR images
 
 ## Conventions
@@ -62,6 +62,6 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 
 - [ ] Multi-source vault support (see docs/decisions/2026-05-22-multi-source-vaults.md)
 - [ ] Retro summary rendering on observation deck (pending /work-summarize skill update)
-- [ ] SHIP_API_TOKEN: token-based auth bypass for automated tools (browse daemon benchmarking, monitoring). Skip oauth2-proxy when the right header is present.
+- [x] SHIP_API_TOKEN: token-based auth bypass for automated tools (browse daemon benchmarking, monitoring). Skip oauth2-proxy when the right header is present.
 - [x] /static/ auth bypass in megadoomer-config HTTPRoute (route directly to ship pod, skip nginx-ingress + oauth2-proxy)
 - [ ] DESIGN.md: formalize megadoomer.io visual language (colors, typography, spacing, component patterns) after domain consolidation ships. Run /design-consultation to create it, then /plan-design-review to audit ship+portal against it.

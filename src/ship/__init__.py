@@ -1,4 +1,5 @@
 import os
+import secrets
 
 import flask
 import flask_compress
@@ -17,15 +18,13 @@ def create_app() -> flask.Flask:
     app.config["VAULT_REPO"] = os.environ.get("SHIP_VAULT_REPO", "")
     app.config["VAULT_CLONE_PATH"] = os.environ.get("SHIP_VAULT_CLONE_PATH", "/tmp/vault-clone")
     app.config["VAULT_PATH"] = os.environ.get("SHIP_VAULT_PATH", "/tmp/vault")
-    app.config["OWNER_GITHUB_USER"] = os.environ.get("SHIP_OWNER_GITHUB_USER", "")
     app.config["PULL_INTERVAL_SECONDS"] = int(os.environ.get("SHIP_PULL_INTERVAL_SECONDS", "300"))
+
+    app.config["API_TOKEN"] = os.environ.get("SHIP_API_TOKEN", "")
+    app.secret_key = os.environ.get("SHIP_SECRET_KEY", secrets.token_hex(32))
 
     app.config["COMPRESS_MIMETYPES"] = ["text/html", "text/css", "application/json"]
     app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 3600
-
-    app.config["AUTH_OWNERS"] = auth.parse_user_list(os.environ.get("SHIP_OWNERS", app.config["OWNER_GITHUB_USER"]))
-    app.config["AUTH_MANAGERS"] = auth.parse_user_list(os.environ.get("SHIP_MANAGERS", ""))
-    app.config["AUTH_TEAMMATES"] = auth.parse_user_list(os.environ.get("SHIP_TEAMMATES", ""))
 
     flask_compress.Compress(app)
     app.register_blueprint(routes.bp)

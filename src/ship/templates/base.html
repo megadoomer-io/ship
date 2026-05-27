@@ -18,16 +18,32 @@
                 <a href="{{ url_for('ship.bridge') }}" class="shared-nav-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge</a>
                 {% endif %}
                 {% if role and role.value >= 2 %}
-                <a href="{{ url_for('ship.porthole') }}" class="shared-nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole</a>
-                {% endif %}
-                {% if role %}
                 <a href="{{ url_for('ship.observation_deck') }}" class="shared-nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Observation Deck</a>
+                {% endif %}
+                {% if role and role.value >= 1 %}
+                <a href="{{ url_for('ship.porthole') }}" class="shared-nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole</a>
                 <a href="{{ url_for('ship.captains_log') }}" class="shared-nav-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log</a>
                 {% endif %}
                 <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">&#9790;</button>
             </div>
         </div>
     </nav>
+    {% if actual_role is defined and actual_role is not none and actual_role > role %}
+    <div class="view-as-bar">
+        Viewing as: <strong>{{ role.name|lower }}</strong>
+        <a href="?view_as=reset" class="view-as-reset">Reset</a>
+        {% for r in actual_role.__class__ if r < actual_role and r != role %}
+        <a href="?view_as={{ r.name|lower }}" class="view-as-option">{{ r.name|lower }}</a>
+        {% endfor %}
+    </div>
+    {% elif actual_role is defined and actual_role is not none and actual_role.value > 1 %}
+    <div class="view-as-bar">
+        <span class="view-as-label">View as:</span>
+        {% for r in actual_role.__class__ if r < actual_role %}
+        <a href="?view_as={{ r.name|lower }}" class="view-as-option">{{ r.name|lower }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="/">megadoomer.io</a><span class="sep">/</span><a href="{{ url_for('ship.index') }}">Ship</a>{% block crumb %}{% endblock %}
@@ -37,8 +53,8 @@
         {% block content %}{% endblock %}
     </main>
     <footer class="shared-footer">
-        <a href="https://github.com/mikedougherty/ship/issues" class="feedback-link">&#9998; Feedback</a>
-        &nbsp;&middot;&nbsp; Ship v0.1.0
+        <a href="https://github.com/megadoomer-io/ship/issues" class="feedback-link">&#9998; Feedback</a>
+        &nbsp;&middot;&nbsp; Ship v0.2.0
     </footer>
     <script>
         function toggleTheme() {

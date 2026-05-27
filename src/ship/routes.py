@@ -17,11 +17,11 @@ def healthz() -> flask.Response:
 @bp.route("/")
 def index() -> werkzeug.wrappers.Response:
     role: Role = flask.g.role
-    if role >= Role.OWNER:
+    if role >= Role.CAPTAIN:
         return flask.redirect(flask.url_for("ship.bridge"))
-    if role >= Role.MANAGER:
-        return flask.redirect(flask.url_for("ship.porthole"))
-    return flask.redirect(flask.url_for("ship.observation_deck"))
+    if role >= Role.OFFICERS:
+        return flask.redirect(flask.url_for("ship.observation_deck"))
+    return flask.redirect(flask.url_for("ship.porthole"))
 
 
 @bp.route("/bridge")
@@ -30,6 +30,7 @@ def bridge() -> str:
     return flask.render_template(
         "bridge.html",
         role=flask.g.role,
+        actual_role=flask.g.actual_role,
         user=flask.g.user,
         active_work=content.get_active_work(vault_path),
         weekly_summary=content.get_weekly_summary(vault_path),
@@ -43,6 +44,7 @@ def porthole() -> str:
     return flask.render_template(
         "porthole.html",
         role=flask.g.role,
+        actual_role=flask.g.actual_role,
         user=flask.g.user,
         timeline=content.get_timeline(vault_path),
     )
@@ -57,6 +59,7 @@ def observation_deck() -> str:
     return flask.render_template(
         "observation_deck.html",
         role=flask.g.role,
+        actual_role=flask.g.actual_role,
         user=flask.g.user,
         feed=feed,
         active_work=content.get_active_work(vault_path),
@@ -72,6 +75,7 @@ def captains_log() -> str:
     return flask.render_template(
         "captains_log.html",
         role=flask.g.role,
+        actual_role=flask.g.actual_role,
         user=flask.g.user,
         retros=retros,
     )

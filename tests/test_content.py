@@ -195,16 +195,17 @@ class TestGetHierarchicalFeed:
 
 
 class TestRouteIntegration:
+    _G = "megadoomer-io:megadoomer-ship"
+    CAPTAIN_H = {"X-Auth-Request-User": "u", "X-Auth-Request-Groups": f"{_G}-captain,{_G}"}
+    OFFICERS_H = {"X-Auth-Request-User": "u", "X-Auth-Request-Groups": f"{_G}-officers,{_G}"}
+    CREW_H = {"X-Auth-Request-User": "u", "X-Auth-Request-Groups": f"{_G}-crew,{_G}"}
+
     @pytest.fixture()
     def app(self, vault: str) -> flask.Flask:
         import os
 
         os.environ["SHIP_VAULT_REPO"] = ""
         os.environ["SHIP_VAULT_PATH"] = vault
-        os.environ["SHIP_OWNER_GITHUB_USER"] = "testowner"
-        os.environ["SHIP_OWNERS"] = "testowner"
-        os.environ["SHIP_MANAGERS"] = "testmanager"
-        os.environ["SHIP_TEAMMATES"] = "testmate"
 
         test_app = ship.create_app()
         test_app.config["TESTING"] = True
@@ -215,7 +216,7 @@ class TestRouteIntegration:
         return app.test_client()
 
     def test_observation_deck_has_hierarchy(self, client: flask.testing.FlaskClient) -> None:
-        resp = client.get("/observation-deck", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        resp = client.get("/observation-deck", headers=self.OFFICERS_H)
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "The view from above" in html
@@ -223,20 +224,20 @@ class TestRouteIntegration:
         assert "Activity" in html
 
     def test_observation_deck_period_filter(self, client: flask.testing.FlaskClient) -> None:
-        resp = client.get("/observation-deck?period=month", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        resp = client.get("/observation-deck?period=month", headers=self.OFFICERS_H)
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "period-btn active" in html
 
     def test_porthole_has_timeline_feed(self, client: flask.testing.FlaskClient) -> None:
-        resp = client.get("/porthole", headers={"X-Auth-Request-Preferred-Username": "testmanager"})
+        resp = client.get("/porthole", headers=self.CREW_H)
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "badge-retro" in html
         assert "A window into the work" in html
 
     def test_captains_log_renders(self, client: flask.testing.FlaskClient) -> None:
-        resp = client.get("/captains-log", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        resp = client.get("/captains-log", headers=self.CREW_H)
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "Captain's Log" in html
@@ -244,22 +245,22 @@ class TestRouteIntegration:
         assert "retro-card" in html
 
     def test_captains_log_has_metrics_table(self, client: flask.testing.FlaskClient) -> None:
-        resp = client.get("/captains-log", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        resp = client.get("/captains-log", headers=self.CREW_H)
         html = resp.data.decode()
         assert "metrics-table" in html
 
     def test_captains_log_has_cross_link(self, client: flask.testing.FlaskClient) -> None:
-        resp = client.get("/captains-log", headers={"X-Auth-Request-Preferred-Username": "testmate"})
+        resp = client.get("/captains-log", headers=self.CREW_H)
         html = resp.data.decode()
         assert "observation-deck" in html
 
     def test_bridge_has_blurb(self, client: flask.testing.FlaskClient) -> None:
-        resp = client.get("/bridge", headers={"X-Auth-Request-Preferred-Username": "testowner"})
+        resp = client.get("/bridge", headers=self.CAPTAIN_H)
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "Full operational control" in html
 
     def test_nav_has_captains_log(self, client: flask.testing.FlaskClient) -> None:
-        resp = client.get("/bridge", headers={"X-Auth-Request-Preferred-Username": "testowner"})
+        resp = client.get("/bridge", headers=self.CAPTAIN_H)
         html = resp.data.decode()
         assert "Captain&#39;s Log" in html or "Captain's Log" in html

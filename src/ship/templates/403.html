@@ -3,9 +3,29 @@
 {% block crumb %}<span class="sep">/</span>Access Denied{% endblock %}
 {% block content %}
 <h1>Access Denied</h1>
-<p>You don't have permission to view this page.</p>
+{% if role is not none and role.value == 0 %}
+<p>Welcome aboard. You're currently in the cargo hold — no access to ship operations yet.</p>
 {% if user %}
-<p>You're signed in as <strong>{{ user }}</strong>.</p>
+<p>Signed in as <strong>{{ user }}</strong>.</p>
 {% endif %}
-<p>If you believe this is a mistake, contact the ship owner.</p>
+{% elif viewing_as and suggested_roles %}
+<p>As <strong>{{ role_label(role) }}</strong>, you can't access this page.
+{% if minimum_role %}It requires <strong>{{ role_label(minimum_role) }}</strong> access.{% endif %}</p>
+<p>Your actual role (<strong>{{ role_label(actual_role) }}</strong>) can view this page:</p>
+<ul class="role-suggestions">
+    {% for r in suggested_roles %}
+    <li><a href="?view_as={{ role_label(r) }}">View as {{ role_label(r) }}</a></li>
+    {% endfor %}
+    <li><a href="?view_as=reset">Reset to {{ role_label(actual_role) }}</a></li>
+</ul>
+{% else %}
+{% if minimum_role %}
+<p>This page requires <strong>{{ role_label(minimum_role) }}</strong> access. You have <strong>{{ role_label(role) }}</strong> access.</p>
+{% else %}
+<p>You don't have permission to view this page.</p>
+{% endif %}
+{% if user %}
+<p>Signed in as <strong>{{ user }}</strong>.</p>
+{% endif %}
+{% endif %}
 {% endblock %}
