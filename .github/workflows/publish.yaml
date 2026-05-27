@@ -60,6 +60,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add applications/megadoomer/ship/do/kustomization.yaml
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git pull --rebase --autostash
           git commit -m "chore(ship): update image to ${{ needs.build-and-push.outputs.tag }}"
           git push
