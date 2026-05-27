@@ -28,22 +28,6 @@
             </div>
         </div>
     </nav>
-    {% if actual_role is defined and actual_role is not none and actual_role > role %}
-    <div class="view-as-bar">
-        Viewing as: <strong>{{ role.name|lower }}</strong>
-        <a href="?view_as=reset" class="view-as-reset">Reset</a>
-        {% for r in actual_role.__class__ if r < actual_role and r != role %}
-        <a href="?view_as={{ r.name|lower }}" class="view-as-option">{{ r.name|lower }}</a>
-        {% endfor %}
-    </div>
-    {% elif actual_role is defined and actual_role is not none and actual_role.value > 1 %}
-    <div class="view-as-bar">
-        <span class="view-as-label">View as:</span>
-        {% for r in actual_role.__class__ if r < actual_role %}
-        <a href="?view_as={{ r.name|lower }}" class="view-as-option">{{ r.name|lower }}</a>
-        {% endfor %}
-    </div>
-    {% endif %}
     {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="/">megadoomer.io</a><span class="sep">/</span><a href="{{ url_for('ship.index') }}">Ship</a>{% block crumb %}{% endblock %}
@@ -56,6 +40,20 @@
         <a href="https://github.com/megadoomer-io/ship/issues" class="feedback-link">&#9998; Feedback</a>
         &nbsp;&middot;&nbsp; Ship v0.2.0
     </footer>
+    {% if actual_role is defined and actual_role is not none and actual_role > role %}
+    <div class="floating-controls">
+        <a href="?view_as=reset" class="btn-toggle active">{{ role.name|lower }}</a>
+        {% for r in actual_role.__class__ if r < actual_role and r != role %}
+        <a href="?view_as={{ r.name|lower }}" class="btn-toggle">{{ r.name|lower }}</a>
+        {% endfor %}
+    </div>
+    {% elif actual_role is defined and actual_role is not none and actual_role.value > 1 %}
+    <div class="floating-controls">
+        {% for r in actual_role.__class__ if r < actual_role %}
+        <a href="?view_as={{ r.name|lower }}" class="btn-toggle">{{ r.name|lower }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
     <script>
         function toggleTheme() {
             var html = document.documentElement;

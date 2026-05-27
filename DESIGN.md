@@ -154,19 +154,20 @@ Collapsible retro entries with metrics table. First entry defaults open.
 - Metrics table: auto-width (not full-width), `--font-mono`, uppercase headers
 - "View activity for this week" link at bottom
 
-### View-As Controls
+### View-As Controls (Floating Pill)
 
-Inline bar showing current view-as state with role switch links. Only visible when the user's actual role is higher than crew.
+Fixed-position controls at bottom-left, matching Portal's `.floating-controls` pattern. Only visible when the user's actual role allows impersonation.
 
 ```css
-.view-as-bar {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--text-muted);
+.floating-controls {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    z-index: 200;
 }
 ```
 
-Role links styled as small bordered pills: `--accent` text, `--border` border, accent tint on hover.
+Each role option is a `.btn-toggle` button. The active role (when viewing-as) gets `--accent` border and tinted background. Controls adapt to smaller padding on mobile.
 
 ### Login Button (401 page)
 
@@ -189,13 +190,17 @@ Ship uses `--accent` (green) for its login CTA, unlike Portal which uses `--acce
 
 ## Page-Level Typography
 
-| Element | Font | Size | Weight | Color |
-|---------|------|------|--------|-------|
-| Page h1 | `--font-mono` | 1.5rem | 700 | `--accent` |
-| Page blurb | inherited sans | 0.9rem | 400 | `--text-muted` |
-| Section h2 | `--font-mono` | 1rem | 600 | `--text` |
+| Element | Font | Size | Weight | Color | Notes |
+|---------|------|------|--------|-------|-------|
+| Page h1 | `--font-mono` | 0.75rem | 700 | `--accent` | Uppercase, letter-spacing 0.1em, border-bottom separator |
+| Page blurb | inherited sans | 0.9rem | 400 | `--text-muted` | Below h1, describes the page's purpose |
+| Section h2 | `--font-mono` | 1rem | 600 | `--text` | Card-level headings |
 
-Page headings (`h1`) are green (`--accent`) and monospace, reinforcing the command-deck aesthetic. Each page has a one-line blurb in muted sans-serif below the heading.
+Page headings (`h1.page-heading`) use Portal's group label style: small uppercase monospace with tracked letter-spacing and a green accent color with border-bottom separator. This matches Portal's `ADMIN`, `MEDIA`, etc. group labels. Each page has a one-line blurb in muted sans-serif below the heading.
+
+Behind each page heading, a `::before` pseudo-element renders the heading text in the Irken alien font at low opacity with a triple-layer green glow, matching Portal's hero heading effect. The Irken text uses `content: attr(data-irken)` so each page renders its own alien script. In light mode, opacity drops via `--title-shadow-opacity` (0.08 vs 0.25 in dark mode).
+
+Error page headings (401, 403, 404) do not use `.page-heading` and remain at standard size without the Irken shadow.
 
 ## Content Width
 
@@ -210,3 +215,6 @@ Ship content area is 960px max-width (vs Portal's 1200px and shared.css's 1200px
 | 2026-05-27 | Replaced all hardcoded border-radius with `--radius-*` tokens | Consistency with shared spacing/radius scale |
 | 2026-05-27 | Green login CTA (not magenta like Portal) | Ship's 401 is utilitarian "proceed," not a marketing CTA |
 | 2026-05-27 | 960px content width (not 1200px) | Readability for long-form markdown content |
+| 2026-05-27 | Floating pill for view-as controls | Matches Portal's `.floating-controls` pattern, frees header from power-user controls |
+| 2026-05-27 | Uppercase group-label h1 headings | Matches Portal's group label treatment (ADMIN, MEDIA, etc.) |
+| 2026-05-27 | Irken font shadow on page headings | Alien script glow behind page names ties Ship into the Irken visual identity |
