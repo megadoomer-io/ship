@@ -229,7 +229,6 @@ def get_retro_summaries(vault_path: str, limit: int = 4, offset: int = 0) -> lis
 def get_timeline(vault_path: str, limit: int = 20, offset: int = 0) -> list[TimelineItem]:
     fetch_limit = limit + offset
     items: list[TimelineItem] = []
-    items.extend(get_retro_summaries(vault_path, limit=fetch_limit))
     items.extend(_get_weekly_items(vault_path, limit=fetch_limit))
     items.sort(key=lambda item: item["date"], reverse=True)
     return items[offset : offset + limit]
@@ -265,8 +264,8 @@ def get_hierarchical_feed(
 
     week_groups: list[WeekGroup] = []
 
-    for offset in range(weeks_to_show):
-        target = today - datetime.timedelta(weeks=offset)
+    for week_offset in range(weeks_to_show):
+        target = today - datetime.timedelta(weeks=week_offset)
         iso = target.isocalendar()
         week_label = f"{iso.year}-W{iso.week:02d}"
 
