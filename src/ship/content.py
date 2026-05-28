@@ -125,14 +125,15 @@ def get_daily_entries(vault_path: str) -> list[str]:
     return entries
 
 
-def _get_weekly_items(vault_path: str, limit: int = 4) -> list[TimelineItem]:
+def _get_weekly_items(vault_path: str, limit: int = 4, offset: int = 0) -> list[TimelineItem]:
     summaries_dir = pathlib.Path(vault_path) / "journal" / "summaries" / "weekly"
     if not summaries_dir.exists():
         return []
 
+    fetch_limit = limit + offset
     items: list[TimelineItem] = []
     for f in sorted(summaries_dir.rglob("*.md"), reverse=True):
-        if len(items) >= limit:
+        if len(items) >= fetch_limit:
             break
         try:
             text = f.read_text()
@@ -175,17 +176,18 @@ def _get_weekly_items(vault_path: str, limit: int = 4) -> list[TimelineItem]:
             )
         )
 
-    return items
+    return items[offset:]
 
 
-def get_retro_summaries(vault_path: str, limit: int = 4) -> list[TimelineItem]:
+def get_retro_summaries(vault_path: str, limit: int = 4, offset: int = 0) -> list[TimelineItem]:
     retro_dir = pathlib.Path(vault_path) / "journal" / "summaries" / "retro"
     if not retro_dir.exists():
         return []
 
+    fetch_limit = limit + offset
     items: list[TimelineItem] = []
     for f in sorted(retro_dir.rglob("*.md"), reverse=True):
-        if len(items) >= limit:
+        if len(items) >= fetch_limit:
             break
         try:
             text = f.read_text()
@@ -221,15 +223,16 @@ def get_retro_summaries(vault_path: str, limit: int = 4) -> list[TimelineItem]:
             )
         )
 
-    return items
+    return items[offset:]
 
 
-def get_timeline(vault_path: str, limit: int = 20) -> list[TimelineItem]:
+def get_timeline(vault_path: str, limit: int = 20, offset: int = 0) -> list[TimelineItem]:
+    fetch_limit = limit + offset
     items: list[TimelineItem] = []
-    items.extend(get_retro_summaries(vault_path, limit=limit))
-    items.extend(_get_weekly_items(vault_path, limit=limit))
+    items.extend(get_retro_summaries(vault_path, limit=fetch_limit))
+    items.extend(_get_weekly_items(vault_path, limit=fetch_limit))
     items.sort(key=lambda item: item["date"], reverse=True)
-    return items[:limit]
+    return items[offset : offset + limit]
 
 
 def _collect_daily_entries_for_date(entries_dir: pathlib.Path, target_date: str) -> list[str]:
@@ -244,12 +247,19 @@ def _collect_daily_entries_for_date(entries_dir: pathlib.Path, target_date: str)
     return entries
 
 
-def get_hierarchical_feed(vault_path: str, period: str = "week") -> list[WeekGroup]:
+def get_hierarchical_feed(
+    vault_path: str,
+    period: str = "week",
+    offset: int = 0,
+    limit: int | None = None,
+) -> list[WeekGroup]:
     vault = pathlib.Path(vault_path)
     entries_dir = vault / "journal" / "entries"
     summaries_dir = vault / "journal" / "summaries" / "weekly"
 
     weeks_to_show = {"week": 4, "month": 12, "all": 52}.get(period, 4)
+    if limit is not None:
+        weeks_to_show = max(weeks_to_show, offset + limit)
 
     today = datetime.date.today()
 
@@ -319,4 +329,6 @@ def get_hierarchical_feed(vault_path: str, period: str = "week") -> list[WeekGro
                 )
             )
 
+    if limit is not None:
+        return week_groups[offset : offset + limit]
     return week_groups

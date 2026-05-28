@@ -67,14 +67,16 @@ def start_sync(app: flask.Flask) -> None:
         log.warning("SHIP_VAULT_REPO not set, vault sync disabled")
         return
 
+    cache = app.extensions.get("content_cache")
+
+    def _sync_and_invalidate() -> None:
+        clone_or_pull(repo_url, clone_path)
+        if cache is not None:
+            cache.invalidate()
+
     clone_or_pull(repo_url, clone_path)
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        clone_or_pull,
-        "interval",
-        seconds=interval,
-        args=[repo_url, clone_path],
-    )
+    scheduler.add_job(_sync_and_invalidate, "interval", seconds=interval)
     scheduler.start()
     app.extensions["vault_scheduler"] = scheduler

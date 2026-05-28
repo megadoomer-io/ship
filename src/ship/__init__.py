@@ -1,12 +1,16 @@
 import os
 import pathlib
+import re
 import secrets
 
 import flask
 import flask_compress
 
 from ship import auth, routes, vault
+from ship.cache import ContentCache
 from ship.middleware import PathPrefixMiddleware
+
+_H1_RE = re.compile(r"<h[13][^>]*>(.*?)</h[13]>", re.DOTALL)
 
 _PORTAL_SHARED_CSS = (
     pathlib.Path(__file__).resolve().parents[3]
@@ -33,6 +37,13 @@ def create_app() -> flask.Flask:
 
     app.config["COMPRESS_MIMETYPES"] = ["text/html", "text/css", "application/json"]
     app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 3600
+
+    app.extensions["content_cache"] = ContentCache()
+
+    @app.template_filter("extract_title")
+    def extract_title_filter(html: str) -> str:
+        match = _H1_RE.search(html)
+        return match.group(1).strip() if match else "Entry"
 
     flask_compress.Compress(app)
     app.register_blueprint(routes.bp)
