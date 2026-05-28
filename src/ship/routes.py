@@ -116,6 +116,13 @@ def api_timeline() -> str:
     return flask.render_template("_timeline_fragment.html", timeline=timeline, is_fragment=True)
 
 
+@bp.route("/api/version")
+def api_version() -> flask.Response:
+    cache = flask.current_app.extensions.get("content_cache")
+    generation = cache.generation if cache else 0
+    return flask.jsonify({"generation": generation})
+
+
 @bp.route("/api/retros")
 def api_retros() -> str:
     vault_path = flask.current_app.config["VAULT_PATH"]

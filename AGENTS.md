@@ -65,7 +65,6 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - (none currently)
 
 ### Needs discussion / planning
-- [ ] Content updating strategy (live reload, polling, manual refresh)
 - [ ] View-as controls in nav bar on desktop widths (floating pill as mobile fallback)
 
 ### Deprioritized
@@ -85,3 +84,4 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - [x] Collapsible entries on Porthole and Bridge
 - [x] DX docs: CHANGELOG, CONTRIBUTING, issue templates
 - [x] Remove `?token=` query param auth — header-based auth only (X-Ship-Token, Authorization Bearer)
+- [x] Content auto-refresh — JS polls /api/version every 30s, reloads when cache generation changes

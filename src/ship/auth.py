@@ -33,6 +33,7 @@ ROUTE_MINIMUM_ROLE: dict[str, Role] = {
     "ship.api_feed": Role.OFFICERS,
     "ship.api_timeline": Role.CREW,
     "ship.api_retros": Role.CREW,
+    "ship.api_version": Role.CREW,
 }
 
 _SKIP_AUTH_ENDPOINTS = frozenset({"ship.healthz", "static", "shared_css"})

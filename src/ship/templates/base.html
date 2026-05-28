@@ -73,6 +73,19 @@
                 if (btn) btn.textContent = saved === 'dark' ? '☾' : '☀';
             }
         })();
+        (function() {
+            var knownGeneration = null;
+            var versionUrl = '{{ url_for("ship.api_version") }}';
+            setInterval(function() {
+                fetch(versionUrl).then(function(r) { return r.json(); }).then(function(data) {
+                    if (knownGeneration === null) {
+                        knownGeneration = data.generation;
+                    } else if (data.generation !== knownGeneration) {
+                        location.reload();
+                    }
+                }).catch(function() {});
+            }, 30000);
+        })();
     </script>
 </body>
 </html>

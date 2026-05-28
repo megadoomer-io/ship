@@ -315,6 +315,23 @@ class TestApiTimeline:
         assert response.status_code == 200
 
 
+class TestApiVersion:
+    def test_returns_generation(self, client):
+        response = client.get("/api/version", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "generation" in data
+        assert isinstance(data["generation"], int)
+
+    def test_requires_crew(self, client):
+        response = client.get("/api/version", headers=auth_headers("testuser", CARGO_GROUPS))
+        assert response.status_code == 403
+
+    def test_no_auth_returns_401(self, client):
+        response = client.get("/api/version")
+        assert response.status_code == 401
+
+
 class TestApiRetros:
     def test_returns_html(self, client):
         response = client.get("/api/retros", headers=auth_headers("testuser", CREW_GROUPS))
