@@ -25,7 +25,7 @@ Key implications:
 - Templates in `src/ship/templates/`, static files in `src/ship/static/`
 - Tests in `tests/`, run with `make check`
 - Decision records in `docs/decisions/`
-- Visual design documented in `DESIGN.md` (extends Portal's design system via `shared.css`)
+- Ship's design system extends Portal's (`DESIGN.md` here is an extension doc, not standalone). Shared tokens (colors, fonts, spacing, radius, nav, footer) are defined in Portal's `DESIGN.md` and delivered via `shared.css`. Ship's `DESIGN.md` documents only Ship-specific component patterns and any parameter deviations from the shared system, with reasoning for each deviation. When adding visual patterns that also exist in Portal, define the pattern in Portal first, then reference it from Ship.
 
 ## Development
 
