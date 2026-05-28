@@ -12,13 +12,15 @@
         var offset = config.initialCount;
         var loading = false;
         var exhausted = false;
+        var pageToken = new URLSearchParams(window.location.search).get('token');
 
         var observer = new IntersectionObserver(function (entries) {
             if (!entries[0].isIntersecting || loading || exhausted) return;
 
             loading = true;
             var url = config.url + '?offset=' + offset + '&limit=' + config.limit +
-                (config.extraParams || '');
+                (config.extraParams || '') +
+                (pageToken ? '&token=' + encodeURIComponent(pageToken) : '');
 
             fetch(url)
                 .then(function (r) { return r.text(); })
