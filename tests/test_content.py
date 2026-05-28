@@ -109,11 +109,11 @@ class TestGetRetroSummaries:
 
 
 class TestGetTimeline:
-    def test_returns_mixed_items(self, vault: str) -> None:
+    def test_returns_weekly_items_only(self, vault: str) -> None:
         items = content.get_timeline(vault)
         types = {item["content_type"] for item in items}
-        assert "retro" in types
         assert "weekly" in types
+        assert "retro" not in types
 
     def test_sorted_descending(self, vault: str) -> None:
         items = content.get_timeline(vault)
@@ -233,7 +233,8 @@ class TestRouteIntegration:
         resp = client.get("/porthole", headers=self.CREW_H)
         assert resp.status_code == 200
         html = resp.data.decode()
-        assert "badge-retro" in html
+        assert "badge-weekly" in html
+        assert "badge-retro" not in html
         assert "A window into the work" in html
 
     def test_captains_log_renders(self, client: flask.testing.FlaskClient) -> None:

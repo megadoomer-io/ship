@@ -66,7 +66,6 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 
 ### Needs discussion / planning
 - [ ] Content updating strategy (live reload, polling, manual refresh)
-- [ ] Porthole vs Captain's Log content dedup (ship#8) — product decision on overlapping retro content
 - [ ] View-as controls in nav bar on desktop widths (floating pill as mobile fallback)
 
 ### Deprioritized
@@ -83,5 +82,6 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - [x] Local dev shared.css: Flask serves Portal's shared.css in debug mode via sibling repo path
 - [x] In-memory content cache with generation-counter invalidation
 - [x] Infinite scroll via HTML fragment API endpoints
+- [x] Porthole vs Captain's Log content dedup (ship#8) — retros removed from Porthole, Captain's Log is the dedicated retro view
 - [x] Collapsible entries on Porthole and Bridge
 - [x] DX docs: CHANGELOG, CONTRIBUTING, issue templates
