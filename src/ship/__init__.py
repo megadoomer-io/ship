@@ -1,4 +1,5 @@
 import os
+import pathlib
 import secrets
 
 import flask
@@ -6,6 +7,13 @@ import flask_compress
 
 from ship import auth, routes, vault
 from ship.middleware import PathPrefixMiddleware
+
+_PORTAL_SHARED_CSS = (
+    pathlib.Path(__file__).resolve().parents[3]
+    / "portal"
+    / "static"
+    / "shared.css"
+)
 
 
 def create_app() -> flask.Flask:
@@ -32,6 +40,12 @@ def create_app() -> flask.Flask:
     app.register_error_handler(401, auth.handle_401)
     app.register_error_handler(403, auth.handle_403)
     app.register_error_handler(404, auth.handle_404)
+
+    if app.debug and _PORTAL_SHARED_CSS.exists():
+
+        @app.route("/shared.css")
+        def shared_css() -> flask.Response:
+            return flask.send_file(_PORTAL_SHARED_CSS, mimetype="text/css")
 
     if not app.config.get("TESTING"):
         vault.start_sync(app)

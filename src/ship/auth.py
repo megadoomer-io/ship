@@ -32,7 +32,7 @@ ROUTE_MINIMUM_ROLE: dict[str, Role] = {
     "ship.index": Role.CREW,
 }
 
-_SKIP_AUTH_ENDPOINTS = frozenset({"ship.healthz", "static"})
+_SKIP_AUTH_ENDPOINTS = frozenset({"ship.healthz", "static", "shared_css"})
 _SKIP_AUTH_PREFIXES = ("/healthz", "/static/")
 
 

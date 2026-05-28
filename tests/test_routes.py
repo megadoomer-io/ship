@@ -1,5 +1,6 @@
 import pytest
 
+from ship.dev import create_mock_vault
 from tests.conftest import CAPTAIN_GROUPS, CARGO_GROUPS, CREW_GROUPS, OFFICERS_GROUPS, auth_headers
 
 # ---------------------------------------------------------------------------
@@ -244,4 +245,35 @@ class TestNotFound:
 
     def test_404_without_auth_gets_401(self, client):
         response = client.get("/nonexistent")
+        assert response.status_code == 401
+
+
+# ---------------------------------------------------------------------------
+# shared.css dev route
+# ---------------------------------------------------------------------------
+
+
+class TestSharedCssDev:
+    def test_shared_css_served_in_debug_mode(self, tmp_path, monkeypatch):
+        import ship
+
+        vault_path = str(tmp_path / "vault")
+        create_mock_vault(vault_path)
+        monkeypatch.setenv("SHIP_VAULT_REPO", "")
+        monkeypatch.setenv("SHIP_VAULT_PATH", vault_path)
+        monkeypatch.setenv("FLASK_DEBUG", "1")
+
+        app = ship.create_app()
+        app.config["TESTING"] = True
+
+        with app.test_client() as c:
+            response = c.get("/shared.css")
+            if ship._PORTAL_SHARED_CSS.exists():
+                assert response.status_code == 200
+                assert response.content_type == "text/css; charset=utf-8"
+            else:
+                assert response.status_code in (401, 404)
+
+    def test_shared_css_not_served_in_production(self, client):
+        response = client.get("/shared.css")
         assert response.status_code == 401
