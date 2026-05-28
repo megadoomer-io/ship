@@ -12,15 +12,14 @@
         var offset = config.initialCount;
         var loading = false;
         var exhausted = false;
-        var pageToken = new URLSearchParams(window.location.search).get('token');
+        var errors = 0;
 
         var observer = new IntersectionObserver(function (entries) {
             if (!entries[0].isIntersecting || loading || exhausted) return;
 
             loading = true;
             var url = config.url + '?offset=' + offset + '&limit=' + config.limit +
-                (config.extraParams || '') +
-                (pageToken ? '&token=' + encodeURIComponent(pageToken) : '');
+                (config.extraParams || '');
 
             fetch(url)
                 .then(function (r) { return r.text(); })
@@ -34,7 +33,14 @@
                     offset += config.limit;
                     loading = false;
                 })
-                .catch(function () { loading = false; });
+                .catch(function () {
+                    loading = false;
+                    errors++;
+                    if (errors >= 3) {
+                        exhausted = true;
+                        sentinel.remove();
+                    }
+                });
         }, { rootMargin: '200px' });
 
         observer.observe(sentinel);

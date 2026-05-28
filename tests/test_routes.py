@@ -171,20 +171,9 @@ class TestApiToken:
         response = client.get("/bridge", headers={"X-Ship-Token": "wrong-token"})
         assert response.status_code == 401
 
-    def test_query_param_token(self, client):
+    def test_query_param_token_ignored(self, client):
         response = client.get("/bridge?token=test-api-token-secret")
-        assert response.status_code == 200
-
-    def test_invalid_query_param_token_gets_401(self, client):
-        response = client.get("/bridge?token=wrong-token")
         assert response.status_code == 401
-
-    def test_header_takes_precedence_over_query_param(self, client):
-        response = client.get(
-            "/bridge?token=wrong-token",
-            headers={"X-Ship-Token": "test-api-token-secret"},
-        )
-        assert response.status_code == 200
 
     def test_empty_token_config_disables_api_auth(self, client):
         client.application.config["API_TOKEN"] = ""

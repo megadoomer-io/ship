@@ -106,9 +106,6 @@ def enforce_auth() -> flask.Response | None:
         auth_header = flask.request.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
             token_header = auth_header[7:]
-    if not token_header:
-        token_header = flask.request.args.get("token")
-
     if api_token and token_header and secrets.compare_digest(api_token, token_header):
         flask.g.user = "_api"
         flask.g.actual_role = Role.CAPTAIN
