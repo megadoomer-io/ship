@@ -61,10 +61,24 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 
 ## TODOs
 
-- [ ] Multi-source vault support (see docs/decisions/2026-05-22-multi-source-vaults.md)
-- [ ] Retro summary rendering on observation deck (pending /work-summarize skill update)
-- [x] SHIP_API_TOKEN: token-based auth bypass for automated tools (browse daemon benchmarking, monitoring). Skip oauth2-proxy when the right header is present.
-- [x] /static/ auth bypass in megadoomer-config HTTPRoute (route directly to ship pod, skip nginx-ingress + oauth2-proxy)
-- [x] DESIGN.md: formalize megadoomer.io visual language (colors, typography, spacing, component patterns) after domain consolidation ships. Run /design-consultation to create it, then /plan-design-review to audit ship+portal against it.
+### Active
+- (none currently)
+
+### Needs discussion / planning
+- [ ] Pagination or infinite scroll for observation deck and captain's log as content grows
+- [ ] Content updating strategy (live reload, polling, manual refresh)
+- [ ] Caching strategy for vault content (in-memory, invalidation, TTL)
+- [ ] Porthole vs Captain's Log content dedup (ship#8) — product decision on overlapping retro content
+
+### Deprioritized
+- [ ] Multi-source vault support (see docs/decisions/2026-05-22-multi-source-vaults.md) — gathering team feedback, may be YAGNI
 - [ ] HTML sanitization in markdown.render(): add nh3 or bleach allowlist if Ship ever ingests content from untrusted sources. Multi-source vault support is the trigger. Current single-owner vault is trusted input.
 - [ ] Remove `?token=` query param auth: header-based auth (X-Ship-Token) is sufficient and avoids log/history/Referer leakage. Low priority since query param only works via port-forward today.
+
+### Done
+- [x] SHIP_API_TOKEN: token-based auth bypass for automated tools
+- [x] /static/ auth bypass in megadoomer-config HTTPRoute
+- [x] DESIGN.md: formalize megadoomer.io visual language
+- [x] Retro summary rendering on observation deck — retros now written to `journal/summaries/retro/` with correct frontmatter
+- [x] Design review: migrated layout spacing to `--space-*` tokens (both Ship and Portal CSS), documented tokenization policy in DESIGN.md
+- [x] Local dev shared.css: Flask serves Portal's shared.css in debug mode via sibling repo path
