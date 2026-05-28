@@ -277,3 +277,70 @@ class TestSharedCssDev:
     def test_shared_css_not_served_in_production(self, client):
         response = client.get("/shared.css")
         assert response.status_code == 401
+
+
+# ---------------------------------------------------------------------------
+# API endpoints
+# ---------------------------------------------------------------------------
+
+
+class TestApiFeed:
+    def test_returns_html(self, client):
+        response = client.get("/api/feed", headers=auth_headers("testuser", OFFICERS_GROUPS))
+        assert response.status_code == 200
+        assert "text/html" in response.content_type
+
+    def test_requires_officers(self, client):
+        response = client.get("/api/feed", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 403
+
+    def test_no_auth_returns_401(self, client):
+        response = client.get("/api/feed")
+        assert response.status_code == 401
+
+    def test_offset_and_limit(self, client):
+        response = client.get("/api/feed?offset=0&limit=2", headers=auth_headers("testuser", OFFICERS_GROUPS))
+        assert response.status_code == 200
+
+    def test_caps_limit(self, client):
+        response = client.get("/api/feed?limit=100", headers=auth_headers("testuser", OFFICERS_GROUPS))
+        assert response.status_code == 200
+
+
+class TestApiTimeline:
+    def test_returns_html(self, client):
+        response = client.get("/api/timeline", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+        assert "text/html" in response.content_type
+
+    def test_requires_crew(self, client):
+        response = client.get("/api/timeline", headers=auth_headers("testuser", CARGO_GROUPS))
+        assert response.status_code == 403
+
+    def test_no_auth_returns_401(self, client):
+        response = client.get("/api/timeline")
+        assert response.status_code == 401
+
+    def test_offset(self, client):
+        response = client.get("/api/timeline?offset=10", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+
+
+class TestApiRetros:
+    def test_returns_html(self, client):
+        response = client.get("/api/retros", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+        assert "text/html" in response.content_type
+
+    def test_requires_crew(self, client):
+        response = client.get("/api/retros", headers=auth_headers("testuser", CARGO_GROUPS))
+        assert response.status_code == 403
+
+    def test_no_auth_returns_401(self, client):
+        response = client.get("/api/retros")
+        assert response.status_code == 401
+
+    def test_offset_beyond_data_returns_empty(self, client):
+        response = client.get("/api/retros?offset=1000", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+        assert response.data.strip() == b""

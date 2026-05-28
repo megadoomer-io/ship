@@ -264,3 +264,37 @@ class TestRouteIntegration:
         resp = client.get("/bridge", headers=self.CAPTAIN_H)
         html = resp.data.decode()
         assert "Captain&#39;s Log" in html or "Captain's Log" in html
+
+
+class TestPagination:
+    def test_timeline_offset_zero_matches_default(self, vault: str) -> None:
+        default = content.get_timeline(vault, limit=20)
+        with_offset = content.get_timeline(vault, limit=20, offset=0)
+        assert len(default) == len(with_offset)
+        for a, b in zip(default, with_offset, strict=True):
+            assert a["title"] == b["title"]
+
+    def test_timeline_offset_skips_items(self, vault: str) -> None:
+        all_items = content.get_timeline(vault, limit=20)
+        if len(all_items) < 2:
+            return
+        offset_items = content.get_timeline(vault, limit=20, offset=1)
+        assert offset_items[0]["title"] == all_items[1]["title"]
+
+    def test_timeline_offset_beyond_end_returns_empty(self, vault: str) -> None:
+        items = content.get_timeline(vault, limit=20, offset=1000)
+        assert items == []
+
+    def test_retro_offset(self, vault: str) -> None:
+        all_items = content.get_retro_summaries(vault, limit=20)
+        offset_items = content.get_retro_summaries(vault, limit=20, offset=len(all_items))
+        assert offset_items == []
+
+    def test_hierarchical_feed_no_limit_preserves_behavior(self, vault: str) -> None:
+        default = content.get_hierarchical_feed(vault, period="week")
+        explicit = content.get_hierarchical_feed(vault, period="week", limit=None)
+        assert len(default) == len(explicit)
+
+    def test_hierarchical_feed_explicit_limit(self, vault: str) -> None:
+        result = content.get_hierarchical_feed(vault, period="all", offset=0, limit=1)
+        assert len(result) <= 1
