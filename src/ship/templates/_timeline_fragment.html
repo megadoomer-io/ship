@@ -1,0 +1,10 @@
+{% for item in timeline %}
+<details class="card timeline-card" {% if loop.first and not is_fragment %}open{% endif %}>
+    <summary class="timeline-header">
+        <span class="badge badge-{{ item.content_type }}">{{ item.content_type }}</span>
+        <span class="timeline-title-inline">{{ item.title }}</span>
+        <time class="timeline-date-inline">{{ item.date.strftime('%b %d, %Y') }}</time>
+    </summary>
+    <div class="timeline-body rendered-content">{{ item.rendered_html | safe }}</div>
+</details>
+{% endfor %}

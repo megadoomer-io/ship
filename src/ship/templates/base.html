@@ -54,6 +54,8 @@
         {% endfor %}
     </div>
     {% endif %}
+    <script src="{{ url_for('static', filename='js/scroll.js') }}"></script>
+    {% block scripts %}{% endblock %}
     <script>
         function toggleTheme() {
             var html = document.documentElement;

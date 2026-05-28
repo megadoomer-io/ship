@@ -7,36 +7,25 @@
 <p class="page-blurb">Reflections on the voyage. Patterns, insights, and course corrections.</p>
 
 {% if retros %}
-{% for item in retros %}
-<details id="{{ item.metadata.get('period', '') }}" {% if loop.first %}open{% endif %} class="card retro-card">
-    <summary class="retro-summary">
-        <span class="badge badge-retro">retro</span>
-        <span class="retro-title">{{ item.title }}</span>
-        <time class="timeline-date">{{ item.date.strftime('%b %d, %Y') }}</time>
-    </summary>
-    <div class="retro-body">
-        {% if item.metadata.get('metrics') %}
-        <table class="metrics-table">
-            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
-            <tbody>
-            {% for key, value in item.metadata['metrics'].items() %}
-            <tr><td>{{ key | replace('_', ' ') | title }}</td><td>{{ value }}</td></tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% endif %}
-
-        <div class="rendered-content">{{ item.rendered_html | safe }}</div>
-
-        <div class="week-links">
-            <a href="{{ url_for('ship.observation_deck', week=item.metadata.get('period', '')) }}">View activity for this week</a>
-        </div>
-    </div>
-</details>
-{% endfor %}
+<div id="retros-container">
+    {% include "_retros_fragment.html" %}
+</div>
 {% else %}
 <section class="card">
     <p class="text-muted">No retros yet. Run <code>/retro</code> to generate your first captain's log entry.</p>
 </section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if retros %}
+<script>
+    initInfiniteScroll({
+        container: '#retros-container',
+        url: '{{ url_for("ship.api_retros") }}',
+        initialCount: {{ retros|length }},
+        limit: 10
+    });
+</script>
 {% endif %}
 {% endblock %}
