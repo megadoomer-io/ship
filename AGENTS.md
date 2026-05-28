@@ -71,7 +71,6 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 ### Deprioritized
 - [ ] Multi-source vault support (see docs/decisions/2026-05-22-multi-source-vaults.md) — gathering team feedback, may be YAGNI
 - [ ] HTML sanitization in markdown.render(): add nh3 or bleach allowlist if Ship ever ingests content from untrusted sources. Multi-source vault support is the trigger. Current single-owner vault is trusted input.
-- [ ] Remove `?token=` query param auth: header-based auth (X-Ship-Token) is sufficient and avoids log/history/Referer leakage. Low priority since query param only works via port-forward today.
 
 ### Done
 - [x] SHIP_API_TOKEN: token-based auth bypass for automated tools
@@ -85,3 +84,4 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - [x] Porthole vs Captain's Log content dedup (ship#8) — retros removed from Porthole, Captain's Log is the dedicated retro view
 - [x] Collapsible entries on Porthole and Bridge
 - [x] DX docs: CHANGELOG, CONTRIBUTING, issue templates
+- [x] Remove `?token=` query param auth — header-based auth only (X-Ship-Token, Authorization Bearer)
