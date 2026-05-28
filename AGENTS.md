@@ -65,10 +65,9 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - (none currently)
 
 ### Needs discussion / planning
-- [ ] Pagination or infinite scroll for observation deck and captain's log as content grows
 - [ ] Content updating strategy (live reload, polling, manual refresh)
-- [ ] Caching strategy for vault content (in-memory, invalidation, TTL)
 - [ ] Porthole vs Captain's Log content dedup (ship#8) — product decision on overlapping retro content
+- [ ] View-as controls in nav bar on desktop widths (floating pill as mobile fallback)
 
 ### Deprioritized
 - [ ] Multi-source vault support (see docs/decisions/2026-05-22-multi-source-vaults.md) — gathering team feedback, may be YAGNI
@@ -82,3 +81,7 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - [x] Retro summary rendering on observation deck — retros now written to `journal/summaries/retro/` with correct frontmatter
 - [x] Design review: migrated layout spacing to `--space-*` tokens (both Ship and Portal CSS), documented tokenization policy in DESIGN.md
 - [x] Local dev shared.css: Flask serves Portal's shared.css in debug mode via sibling repo path
+- [x] In-memory content cache with generation-counter invalidation
+- [x] Infinite scroll via HTML fragment API endpoints
+- [x] Collapsible entries on Porthole and Bridge
+- [x] DX docs: CHANGELOG, CONTRIBUTING, issue templates
