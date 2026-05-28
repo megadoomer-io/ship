@@ -22,8 +22,10 @@
 <section class="card">
     <h2>Today's Entries</h2>
     {% for entry in daily_entries %}
-    <div class="rendered-content">{{ entry | safe }}</div>
-    {% if not loop.last %}<hr>{% endif %}
+    <details {% if loop.first %}open{% endif %} class="daily-entry">
+        <summary class="day-summary">{{ entry | extract_title }}</summary>
+        <div class="rendered-content">{{ entry | safe }}</div>
+    </details>
     {% endfor %}
 </section>
 {% endif %}

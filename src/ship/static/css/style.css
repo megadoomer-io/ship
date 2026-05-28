@@ -469,6 +469,33 @@ h2 {
     background: color-mix(in srgb, var(--accent), transparent 90%);
 }
 
+/* Collapsible timeline cards (porthole) */
+details.timeline-card {
+    cursor: default;
+}
+
+details.timeline-card > summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+details.timeline-card > summary::-webkit-details-marker { display: none; }
+
+details.timeline-card > .timeline-body {
+    padding-top: 0.75rem;
+}
+
+/* Collapsible daily entries (bridge) */
+details.daily-entry {
+    border-bottom: 1px solid var(--border);
+    padding: var(--space-sm) 0;
+}
+
+details.daily-entry:last-child { border-bottom: none; }
+
+/* Infinite scroll sentinel */
+.scroll-sentinel { height: 1px; }
+
 @media (max-width: 640px) {
     .content { padding: var(--space-md); }
     .card { padding: var(--space-md); }
