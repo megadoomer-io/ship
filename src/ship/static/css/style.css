@@ -8,7 +8,7 @@
 
 .content {
     max-width: 960px;
-    padding: 2rem 1.5rem;
+    padding: var(--space-xl) var(--space-lg);
 }
 
 h1 {
@@ -50,14 +50,14 @@ h1.page-heading::before {
 .page-blurb {
     font-size: 0.9rem;
     color: var(--text-muted);
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-lg);
 }
 
 h2 {
     font-family: var(--font-mono);
     font-size: 1rem;
     font-weight: 600;
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-md);
     color: var(--text);
 }
 
@@ -65,8 +65,8 @@ h2 {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
 }
 
 .content-block {
@@ -138,7 +138,7 @@ h2 {
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    padding: 1rem;
+    padding: var(--space-md);
     overflow-x: auto;
     margin-bottom: 0.75rem;
 }
@@ -147,7 +147,7 @@ h2 {
 
 .rendered-content blockquote {
     border-left: 3px solid var(--accent);
-    padding-left: 1rem;
+    padding-left: var(--space-md);
     margin-bottom: 0.75rem;
     color: var(--text-muted);
 }
@@ -174,7 +174,7 @@ h2 {
 .rendered-content hr {
     border: none;
     border-top: 1px solid var(--border);
-    margin: 1.5rem 0;
+    margin: var(--space-lg) 0;
 }
 
 .rendered-content .task-list-item {
@@ -269,8 +269,8 @@ h2 {
 /* Period filter */
 .period-filter {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
 }
 
 .period-btn {
@@ -313,11 +313,11 @@ h2 {
 }
 
 .week-summary:hover { color: var(--accent); }
-.week-content { padding: 0.75rem 0 0.75rem 1rem; }
+.week-content { padding: 0.75rem 0 0.75rem var(--space-md); }
 
 .week-summary-body {
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-md);
     border-bottom: 1px solid var(--border);
 }
 
@@ -332,7 +332,7 @@ h2 {
 }
 
 .day-summary:hover { color: var(--text); }
-.day-content { padding: 0.5rem 0 0.5rem 1rem; }
+.day-content { padding: var(--space-sm) 0 var(--space-sm) var(--space-md); }
 
 .week-links {
     margin-top: 0.75rem;
@@ -394,11 +394,11 @@ h2 {
 /* Floating view-as controls (bottom-left pill, matches Portal) */
 .floating-controls {
     position: fixed;
-    bottom: 1rem;
-    left: 1rem;
+    bottom: var(--space-md);
+    left: var(--space-md);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-sm);
     z-index: 200;
 }
 
@@ -439,7 +439,7 @@ h2 {
     padding: 0.6em 1.5em;
     border-radius: var(--radius-md);
     text-decoration: none;
-    margin-top: 1rem;
+    margin-top: var(--space-md);
     transition: opacity 0.15s;
 }
 
@@ -449,7 +449,7 @@ h2 {
 .role-suggestions {
     list-style: none;
     padding: 0;
-    margin-top: 1rem;
+    margin-top: var(--space-md);
 }
 
 .role-suggestions li { margin-bottom: 0.5rem; }
@@ -470,7 +470,7 @@ h2 {
 }
 
 @media (max-width: 640px) {
-    .content { padding: 1rem; }
-    .card { padding: 1rem; }
+    .content { padding: var(--space-md); }
+    .card { padding: var(--space-md); }
     .floating-controls { bottom: 0.75rem; left: 0.75rem; }
 }

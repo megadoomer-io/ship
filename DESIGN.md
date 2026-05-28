@@ -210,6 +210,24 @@ Error page headings (401, 403, 404) do not use `.page-heading` and remain at sta
 
 Ship content area is 960px max-width (vs Portal's 1200px and shared.css's 1200px). The narrower width improves readability for the long-form markdown content that dominates Ship's pages.
 
+## Spacing Tokenization Policy
+
+Ship and Portal both use the `--space-*` token scale from `shared.css` for layout and structural spacing. Not all spacing values are tokenized -- the boundary is:
+
+**Tokenized (layout/structural):**
+- Container padding (`.content`, `.card`)
+- Section margins and gaps (`.period-filter`, `.floating-controls`)
+- Content indentation (`.week-content`, `.day-content`)
+- Structural separators (`.rendered-content hr`)
+- Code block padding (`.rendered-content pre`)
+- Blockquote indentation
+
+**Not tokenized (content rhythm / component-internal):**
+- Rendered markdown inter-element spacing (0.75rem) -- consistent content typography rhythm with no exact token match
+- Component-internal micro-spacing (badge padding, button padding, summary padding) -- em-based or component-specific
+- Typography margins (heading margin-bottom) -- tied to font size relationships, not layout grid
+- The 0.75rem (12px) value appears frequently but represents content rhythm, not layout spacing. Adding a token for it would add naming complexity without improving consistency, since it's already used uniformly.
+
 ## Decisions Log
 
 | Date | Decision | Rationale |
@@ -222,3 +240,4 @@ Ship content area is 960px max-width (vs Portal's 1200px and shared.css's 1200px
 | 2026-05-27 | Floating pill for view-as controls | Matches Portal's `.floating-controls` pattern, frees header from power-user controls |
 | 2026-05-27 | Uppercase group-label h1 headings | Matches Portal's group label treatment (ADMIN, MEDIA, etc.) |
 | 2026-05-27 | Irken font shadow on page headings | Shared pattern from Portal's design system. Shadow size (2rem) was arbitrary, confirmed by user. Differs from Portal's same-size approach. |
+| 2026-05-28 | Migrated layout spacing to `--space-*` tokens | Design system compliance: raw rem values replaced with token references for all layout/structural spacing. Content rhythm (0.75rem) intentionally left as raw values. |
