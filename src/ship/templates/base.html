@@ -45,40 +45,40 @@
             </div>
         </div>
         {% endif %}
-    </nav>
-    <div class="shared-nav-links" id="hamburger-menu">
-        {% if role and role.value >= 1 %}
-        <a href="{{ url_for('ship.course') }}" class="shared-nav-link {% if request.endpoint == 'ship.course' %}active{% endif %}">Course <span class="nav-descriptor">plan</span></a>
-        {% endif %}
-        {% if role and role.value >= 3 %}
-        <a href="{{ url_for('ship.bridge') }}" class="shared-nav-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge <span class="nav-descriptor">today</span></a>
-        {% endif %}
-        {% if role and role.value >= 1 %}
-        <a href="{{ url_for('ship.porthole') }}" class="shared-nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole <span class="nav-descriptor">recent</span></a>
-        {% endif %}
-        {% if role and role.value >= 2 %}
-        <a href="{{ url_for('ship.observation_deck') }}" class="shared-nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Obs Deck <span class="nav-descriptor">history</span></a>
-        {% endif %}
-        {% if role and role.value >= 1 %}
-        <a href="{{ url_for('ship.captains_log') }}" class="shared-nav-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log <span class="nav-descriptor">reflections</span></a>
-        {% endif %}
-        <div class="hamburger-separator"></div>
-        {% if actual_role is defined and actual_role is not none and actual_role.value >= 2 %}
-        <div class="nav-dropdown">
-            <button class="nav-dropdown-toggle" onclick="toggleDropdown(event)">{{ role.name|lower }} &#9662;</button>
-            <div class="nav-dropdown-menu">
-                {% if actual_role != role %}
-                <a href="?view_as=reset">{{ actual_role.name|lower }} (reset)</a>
-                {% endif %}
-                {% for r in actual_role.__class__ if r < actual_role and r != role %}
-                <a href="?view_as={{ r.name|lower }}">{{ r.name|lower }}</a>
-                {% endfor %}
+        <div class="shared-nav-links" id="hamburger-menu">
+            {% if role and role.value >= 1 %}
+            <a href="{{ url_for('ship.course') }}" class="shared-nav-link {% if request.endpoint == 'ship.course' %}active{% endif %}">Course <span class="nav-descriptor">plan</span></a>
+            {% endif %}
+            {% if role and role.value >= 3 %}
+            <a href="{{ url_for('ship.bridge') }}" class="shared-nav-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge <span class="nav-descriptor">today</span></a>
+            {% endif %}
+            {% if role and role.value >= 1 %}
+            <a href="{{ url_for('ship.porthole') }}" class="shared-nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole <span class="nav-descriptor">recent</span></a>
+            {% endif %}
+            {% if role and role.value >= 2 %}
+            <a href="{{ url_for('ship.observation_deck') }}" class="shared-nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Obs Deck <span class="nav-descriptor">history</span></a>
+            {% endif %}
+            {% if role and role.value >= 1 %}
+            <a href="{{ url_for('ship.captains_log') }}" class="shared-nav-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log <span class="nav-descriptor">reflections</span></a>
+            {% endif %}
+            <div class="hamburger-separator"></div>
+            {% if actual_role is defined and actual_role is not none and actual_role.value >= 2 %}
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle" onclick="toggleDropdown(event)">{{ role.name|lower }} &#9662;</button>
+                <div class="nav-dropdown-menu">
+                    {% if actual_role != role %}
+                    <a href="?view_as=reset">{{ actual_role.name|lower }} (reset)</a>
+                    {% endif %}
+                    {% for r in actual_role.__class__ if r < actual_role and r != role %}
+                    <a href="?view_as={{ r.name|lower }}">{{ r.name|lower }}</a>
+                    {% endfor %}
+                </div>
             </div>
+            {% endif %}
+            <a href="https://github.com/megadoomer-io/ship/issues/new?template=feedback.md" class="shared-nav-link nav-feedback">Feedback</a>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">&#9790;</button>
         </div>
-        {% endif %}
-        <a href="https://github.com/megadoomer-io/ship/issues/new?template=feedback.md" class="shared-nav-link nav-feedback">Feedback</a>
-        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">&#9790;</button>
-    </div>
+    </nav>
     {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="/">megadoomer.io</a><span class="sep">/</span><a href="{{ url_for('ship.index') }}">Ship</a>{% block crumb %}{% endblock %}
