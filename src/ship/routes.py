@@ -64,7 +64,6 @@ def observation_deck() -> str:
         actual_role=flask.g.actual_role,
         user=flask.g.user,
         feed=feed,
-        active_work=cached("active_work", content.get_active_work, vault_path),
         current_period=period,
         highlight_week=highlight_week,
     )

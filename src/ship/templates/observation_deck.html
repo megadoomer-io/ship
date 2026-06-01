@@ -4,20 +4,13 @@
 
 {% block content %}
 <h1 class="page-heading" data-irken="Observation Deck">Observation Deck</h1>
-<p class="page-blurb">The view from above. What's in flight, what just shipped, what's coming.</p>
+<p class="page-blurb">The view from above. Day by day and week by week.</p>
 
 <div class="period-filter">
     <a href="?period=week" class="period-btn {% if current_period == 'week' %}active{% endif %}">Past Week</a>
     <a href="?period=month" class="period-btn {% if current_period == 'month' %}active{% endif %}">Past Month</a>
     <a href="?period=all" class="period-btn {% if current_period == 'all' %}active{% endif %}">All Time</a>
 </div>
-
-{% if active_work %}
-<section class="card">
-    <h2>In Flight</h2>
-    <div class="rendered-content">{{ active_work | safe }}</div>
-</section>
-{% endif %}
 
 {% if feed %}
 <section class="card">

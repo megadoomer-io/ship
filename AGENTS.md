@@ -18,6 +18,53 @@ Key implications:
 - **Auth:** Group-based roles via GitHub teams (Dex OIDC -> oauth2-proxy -> X-Auth-Request-Groups header). Roles: cargo < crew < officers < captain. Global `admins` group maps to CAPTAIN. API token bypass via X-Ship-Token header. View-as feature for role impersonation.
 - **Deploy:** megadoomer-do cluster, ArgoCD auto-sync, GHCR images
 
+## Content-Type Ownership
+
+Each Ship view owns specific vault content types. Do not add content from one view's domain to another view without updating this spec.
+
+| View             | Min Role | Vault Path(s)                              | Content Type     |
+|------------------|----------|--------------------------------------------|------------------|
+| Bridge           | CAPTAIN  | claude/active-work/INDEX.md                | Active work      |
+|                  |          | journal/entries/\<today\>/*.md             | Today's entries  |
+|                  |          | journal/summaries/weekly/ (latest only)    | Weekly summary   |
+| Observation Deck | OFFICERS | journal/summaries/weekly/**/*.md           | Weekly summaries |
+|                  |          | journal/entries/**/*.md                    | Daily entries    |
+| Porthole         | CREW     | journal/summaries/weekly/**/*.md           | Weekly summaries |
+| Captain's Log    | CREW     | journal/summaries/retro/**/*.md            | Retro summaries  |
+| Course           | CREW     | claude/plans/weekly/**/*.md                | Weekly plans     |
+
+Notes:
+- Weekly summaries appear on Porthole (as standalone cards) and inside the Observation Deck feed (as collapsible section headers that group daily entries by week). This is an accepted boundary crossing because they serve different structural purposes.
+- Journal entries appear on Bridge (today only) and Observation Deck (full history, nested under week groups). This is a scope split, not duplication.
+- Active Work appears ONLY on Bridge. Officers see historical activity on Observation Deck but not the active work dashboard.
+- Bridge shows only the LATEST weekly summary for context. Obs Deck and Porthole show the full history.
+
+## Vault Frontmatter Contract
+
+Ship reads these frontmatter fields from vault files. Changes to field names, types, or semantics in the agent instructions must be coordinated with Ship's content.py.
+
+### Currently consumed (sorting/dating)
+
+| File type        | Field          | Type          | Used for                    |
+|------------------|----------------|---------------|-----------------------------|
+| Weekly summaries | period_start   | date (ISO)    | Sort order, date display    |
+|                  | metrics        | dict          | Commit/PR counts in labels  |
+| Retro summaries  | period_start   | date (ISO)    | Sort order, date display    |
+| Weekly plans     | week           | str (YYYY-Www)| Sort order, date extraction |
+
+**Canonical date field**: `period_start` (ISO date string). Ship's content.py has a 3-tier fallback for weekly summaries (period_start -> week+year frontmatter -> filename regex), but only `period_start` should be relied on going forward. New summaries written by `/work-summarize` should always include `period_start`.
+
+### Available for filtering (not yet consumed)
+
+These fields are written by the agent instructions but not yet read by Ship. The filtering feature will consume them.
+
+| File type        | Field   | Type         | Values                                      |
+|------------------|---------|--------------|---------------------------------------------|
+| Journal entries  | tags    | list[str]    | #project/org/repo, #chore, #feat, #fix, etc |
+| Work events      | type    | str          | add, delivered, complete, block, triage, etc |
+|                  | section | str          | in-progress, prs, issues, jira, blocked, etc|
+|                  | item    | str          | kebab-case slug (work item identifier)      |
+
 ## Conventions
 
 - Python 3.13+, strict mypy, ruff for lint/format
