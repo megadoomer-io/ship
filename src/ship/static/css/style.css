@@ -1,5 +1,9 @@
 /* Ship-specific styles. Shared variables come from /static/shared.css */
 
+.nav-feedback {
+    color: var(--accent) !important;
+}
+
 @font-face {
     font-family: 'Irken';
     src: url('/fonts/irken.ttf') format('truetype');
@@ -235,6 +239,12 @@ h2 {
 }
 
 .badge-weekly {
+    color: var(--info);
+    background: color-mix(in srgb, var(--info), transparent 85%);
+    border: 1px solid color-mix(in srgb, var(--info), transparent 70%);
+}
+
+.badge-plan {
     color: var(--info);
     background: color-mix(in srgb, var(--info), transparent 85%);
     border: 1px solid color-mix(in srgb, var(--info), transparent 70%);
