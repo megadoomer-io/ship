@@ -11,25 +11,74 @@
     <nav class="shared-nav">
         <div class="shared-nav-inner">
             <a href="/" class="shared-nav-brand">megadoomer<span class="brand-accent">.io</span></a>
-            <button class="hamburger-toggle" onclick="document.querySelector('.shared-nav-links').classList.toggle('open')" aria-label="Menu">&#9776;</button>
-            <div class="shared-nav-links">
-                <a href="/" class="shared-nav-link">Home</a>
-                {% if role and role.value >= 3 %}
-                <a href="{{ url_for('ship.bridge') }}" class="shared-nav-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge</a>
-                {% endif %}
-                {% if role and role.value >= 2 %}
-                <a href="{{ url_for('ship.observation_deck') }}" class="shared-nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Observation Deck</a>
-                {% endif %}
-                {% if role and role.value >= 1 %}
-                <a href="{{ url_for('ship.porthole') }}" class="shared-nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole</a>
-                <a href="{{ url_for('ship.captains_log') }}" class="shared-nav-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log</a>
-                <a href="{{ url_for('ship.course') }}" class="shared-nav-link {% if request.endpoint == 'ship.course' %}active{% endif %}">Course</a>
+            <button class="hamburger-toggle" onclick="toggleHamburger()" aria-label="Menu">&#9776;</button>
+            <div class="shared-nav-utility">
+                {% if actual_role is defined and actual_role is not none and actual_role.value >= 2 %}
+                <div class="nav-dropdown">
+                    <button class="nav-dropdown-toggle" onclick="toggleDropdown(event)">{{ role.name|lower }} &#9662;</button>
+                    <div class="nav-dropdown-menu">
+                        {% if actual_role != role %}
+                        <a href="?view_as=reset">{{ actual_role.name|lower }} (reset)</a>
+                        {% endif %}
+                        {% for r in actual_role.__class__ if r < actual_role and r != role %}
+                        <a href="?view_as={{ r.name|lower }}">{{ r.name|lower }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
                 {% endif %}
                 <a href="https://github.com/megadoomer-io/ship/issues/new?template=feedback.md" class="shared-nav-link nav-feedback">Feedback</a>
                 <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">&#9790;</button>
             </div>
         </div>
+        {% if role and role.value >= 1 %}
+        <div class="shared-nav-row-2">
+            <div class="shared-nav-row-2-inner">
+                <a href="{{ url_for('ship.course') }}" class="nav-view-link {% if request.endpoint == 'ship.course' %}active{% endif %}">Course<span class="nav-descriptor">plan</span></a>
+                {% if role.value >= 3 %}
+                <a href="{{ url_for('ship.bridge') }}" class="nav-view-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge<span class="nav-descriptor">today</span></a>
+                {% endif %}
+                <a href="{{ url_for('ship.porthole') }}" class="nav-view-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole<span class="nav-descriptor">recent</span></a>
+                {% if role.value >= 2 %}
+                <a href="{{ url_for('ship.observation_deck') }}" class="nav-view-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Obs Deck<span class="nav-descriptor">history</span></a>
+                {% endif %}
+                <a href="{{ url_for('ship.captains_log') }}" class="nav-view-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log<span class="nav-descriptor">reflections</span></a>
+            </div>
+        </div>
+        {% endif %}
     </nav>
+    <div class="shared-nav-links" id="hamburger-menu">
+        {% if role and role.value >= 1 %}
+        <a href="{{ url_for('ship.course') }}" class="shared-nav-link {% if request.endpoint == 'ship.course' %}active{% endif %}">Course <span class="nav-descriptor">plan</span></a>
+        {% endif %}
+        {% if role and role.value >= 3 %}
+        <a href="{{ url_for('ship.bridge') }}" class="shared-nav-link {% if request.endpoint == 'ship.bridge' %}active{% endif %}">Bridge <span class="nav-descriptor">today</span></a>
+        {% endif %}
+        {% if role and role.value >= 1 %}
+        <a href="{{ url_for('ship.porthole') }}" class="shared-nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole <span class="nav-descriptor">recent</span></a>
+        {% endif %}
+        {% if role and role.value >= 2 %}
+        <a href="{{ url_for('ship.observation_deck') }}" class="shared-nav-link {% if request.endpoint == 'ship.observation_deck' %}active{% endif %}">Obs Deck <span class="nav-descriptor">history</span></a>
+        {% endif %}
+        {% if role and role.value >= 1 %}
+        <a href="{{ url_for('ship.captains_log') }}" class="shared-nav-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log <span class="nav-descriptor">reflections</span></a>
+        {% endif %}
+        <div class="hamburger-separator"></div>
+        {% if actual_role is defined and actual_role is not none and actual_role.value >= 2 %}
+        <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle" onclick="toggleDropdown(event)">{{ role.name|lower }} &#9662;</button>
+            <div class="nav-dropdown-menu">
+                {% if actual_role != role %}
+                <a href="?view_as=reset">{{ actual_role.name|lower }} (reset)</a>
+                {% endif %}
+                {% for r in actual_role.__class__ if r < actual_role and r != role %}
+                <a href="?view_as={{ r.name|lower }}">{{ r.name|lower }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        <a href="https://github.com/megadoomer-io/ship/issues/new?template=feedback.md" class="shared-nav-link nav-feedback">Feedback</a>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">&#9790;</button>
+    </div>
     {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="/">megadoomer.io</a><span class="sep">/</span><a href="{{ url_for('ship.index') }}">Ship</a>{% block crumb %}{% endblock %}
@@ -41,20 +90,6 @@
     <footer class="shared-footer">
         Ship v0.2.0
     </footer>
-    {% if actual_role is defined and actual_role is not none and actual_role > role %}
-    <div class="floating-controls">
-        <a href="?view_as=reset" class="btn-toggle active">{{ role.name|lower }}</a>
-        {% for r in actual_role.__class__ if r < actual_role and r != role %}
-        <a href="?view_as={{ r.name|lower }}" class="btn-toggle">{{ r.name|lower }}</a>
-        {% endfor %}
-    </div>
-    {% elif actual_role is defined and actual_role is not none and actual_role.value > 1 %}
-    <div class="floating-controls">
-        {% for r in actual_role.__class__ if r < actual_role %}
-        <a href="?view_as={{ r.name|lower }}" class="btn-toggle">{{ r.name|lower }}</a>
-        {% endfor %}
-    </div>
-    {% endif %}
     <script src="{{ url_for('static', filename='js/scroll.js') }}"></script>
     {% block scripts %}{% endblock %}
     <script>
@@ -64,16 +99,32 @@
             var next = current === 'dark' ? 'light' : (current === 'light' ? 'dark' : 'dark');
             html.setAttribute('data-theme', next);
             localStorage.setItem('theme', next);
-            document.querySelector('.theme-toggle').textContent = next === 'dark' ? '☾' : '☀';
+            document.querySelectorAll('.theme-toggle').forEach(function(btn) {
+                btn.textContent = next === 'dark' ? '☾' : '☀';
+            });
         }
         (function() {
             var saved = localStorage.getItem('theme');
             if (saved) {
                 document.documentElement.setAttribute('data-theme', saved);
-                var btn = document.querySelector('.theme-toggle');
-                if (btn) btn.textContent = saved === 'dark' ? '☾' : '☀';
+                document.querySelectorAll('.theme-toggle').forEach(function(btn) {
+                    btn.textContent = saved === 'dark' ? '☾' : '☀';
+                });
             }
         })();
+        function toggleHamburger() {
+            document.getElementById('hamburger-menu').classList.toggle('open');
+        }
+        function toggleDropdown(e) {
+            e.stopPropagation();
+            var menu = e.target.closest('.nav-dropdown').querySelector('.nav-dropdown-menu');
+            menu.classList.toggle('open');
+        }
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.nav-dropdown-menu.open').forEach(function(m) {
+                m.classList.remove('open');
+            });
+        });
         (function() {
             var knownGeneration = null;
             var versionUrl = '{{ url_for("ship.api_version") }}';
