@@ -10,7 +10,10 @@
 <body>
     <nav class="shared-nav">
         <div class="shared-nav-inner">
-            <a href="/" class="shared-nav-brand">megadoomer<span class="brand-accent">.io</span></a>
+            <div class="nav-brand-crumbs">
+                <a href="/" class="shared-nav-brand">megadoomer<span class="brand-accent">.io</span></a>
+                {% block breadcrumbs %}<span class="crumb-trail"><span class="sep">/</span><a href="{{ url_for('ship.index') }}">Ship</a>{% block crumb %}{% endblock %}</span>{% endblock %}
+            </div>
             <button class="hamburger-toggle" onclick="toggleHamburger()" aria-label="Menu">&#9776;</button>
             <div class="shared-nav-utility">
                 {% if actual_role is defined and actual_role is not none and actual_role.value >= 2 %}
@@ -79,11 +82,6 @@
             <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">&#9790;</button>
         </div>
     </nav>
-    {% block breadcrumbs %}
-    <div class="breadcrumbs">
-        <a href="/">megadoomer.io</a><span class="sep">/</span><a href="{{ url_for('ship.index') }}">Ship</a>{% block crumb %}{% endblock %}
-    </div>
-    {% endblock %}
     <main class="shared-content content">
         {% block content %}{% endblock %}
     </main>
