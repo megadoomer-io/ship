@@ -1,8 +1,5 @@
 /* Ship-specific styles. Shared variables come from /static/shared.css */
 
-.nav-feedback {
-    color: var(--accent) !important;
-}
 
 @font-face {
     font-family: 'Irken';
