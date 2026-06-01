@@ -226,6 +226,62 @@ def get_retro_summaries(vault_path: str, limit: int = 4, offset: int = 0) -> lis
     return items[offset:]
 
 
+_PLAN_WEEK_RE = re.compile(r"(\d{4})-W(\d{2})")
+
+
+def get_weekly_plans(vault_path: str, limit: int = 10, offset: int = 0) -> list[TimelineItem]:
+    plans_dir = pathlib.Path(vault_path) / "claude" / "plans" / "weekly"
+    if not plans_dir.exists():
+        return []
+
+    fetch_limit = limit + offset
+    items: list[TimelineItem] = []
+    for f in sorted(plans_dir.rglob("*.md"), reverse=True):
+        if len(items) >= fetch_limit:
+            break
+        try:
+            text = f.read_text()
+        except OSError:
+            logger.warning("Could not read %s", f)
+            continue
+
+        meta, body = parse_frontmatter(text)
+        title = _extract_title(body)
+
+        item_date: datetime.date | None = None
+        week_field = meta.get("week")
+        if isinstance(week_field, str):
+            match = _PLAN_WEEK_RE.match(week_field)
+            if match:
+                with contextlib.suppress(ValueError):
+                    item_date = datetime.date.fromisocalendar(
+                        int(match.group(1)), int(match.group(2)), 1
+                    )
+
+        if item_date is None:
+            match = _PLAN_WEEK_RE.search(f.stem)
+            if match:
+                with contextlib.suppress(ValueError):
+                    item_date = datetime.date.fromisocalendar(
+                        int(match.group(1)), int(match.group(2)), 1
+                    )
+
+        if item_date is None:
+            item_date = datetime.date.today()
+
+        items.append(
+            TimelineItem(
+                date=item_date,
+                content_type="plan",
+                title=title,
+                rendered_html=markdown.render(body),
+                metadata=meta,
+            )
+        )
+
+    return items[offset:]
+
+
 def get_timeline(vault_path: str, limit: int = 20, offset: int = 0) -> list[TimelineItem]:
     fetch_limit = limit + offset
     items: list[TimelineItem] = []

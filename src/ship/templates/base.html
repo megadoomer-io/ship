@@ -23,7 +23,9 @@
                 {% if role and role.value >= 1 %}
                 <a href="{{ url_for('ship.porthole') }}" class="shared-nav-link {% if request.endpoint == 'ship.porthole' %}active{% endif %}">Porthole</a>
                 <a href="{{ url_for('ship.captains_log') }}" class="shared-nav-link {% if request.endpoint == 'ship.captains_log' %}active{% endif %}">Captain's Log</a>
+                <a href="{{ url_for('ship.course') }}" class="shared-nav-link {% if request.endpoint == 'ship.course' %}active{% endif %}">Course</a>
                 {% endif %}
+                <a href="https://github.com/megadoomer-io/ship/issues/new?template=feedback.md" class="shared-nav-link nav-feedback">Feedback</a>
                 <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">&#9790;</button>
             </div>
         </div>
@@ -37,8 +39,7 @@
         {% block content %}{% endblock %}
     </main>
     <footer class="shared-footer">
-        <a href="https://github.com/megadoomer-io/ship/issues" class="feedback-link">&#9998; Feedback</a>
-        &nbsp;&middot;&nbsp; Ship v0.2.0
+        Ship v0.2.0
     </footer>
     {% if actual_role is defined and actual_role is not none and actual_role > role %}
     <div class="floating-controls">

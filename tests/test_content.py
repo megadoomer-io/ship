@@ -130,6 +130,30 @@ class TestGetTimeline:
         assert items == []
 
 
+class TestGetWeeklyPlans:
+    def test_returns_plan_items(self, vault: str) -> None:
+        items = content.get_weekly_plans(vault)
+        assert len(items) >= 1
+        assert items[0]["content_type"] == "plan"
+
+    def test_parses_frontmatter(self, vault: str) -> None:
+        items = content.get_weekly_plans(vault)
+        assert items[0]["metadata"].get("type") == "weekly-plan"
+        assert items[0]["metadata"].get("items_triaged") is not None
+
+    def test_limit(self, vault: str) -> None:
+        items = content.get_weekly_plans(vault, limit=1)
+        assert len(items) <= 1
+
+    def test_empty_vault(self, tmp_path: pathlib.Path) -> None:
+        items = content.get_weekly_plans(str(tmp_path))
+        assert items == []
+
+    def test_date_from_week_field(self, vault: str) -> None:
+        items = content.get_weekly_plans(vault)
+        assert items[0]["date"].year >= 2026
+
+
 class TestRetroDateFallbacks:
     def test_retro_with_bare_yaml_date(self, tmp_path: pathlib.Path) -> None:
         vault = tmp_path / "vault"

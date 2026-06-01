@@ -84,6 +84,20 @@ def captains_log() -> str:
     )
 
 
+@bp.route("/course")
+def course() -> str:
+    vault_path = flask.current_app.config["VAULT_PATH"]
+    limit = 10
+    plans = cached(f"plans:{limit}", content.get_weekly_plans, vault_path, limit=limit)
+    return flask.render_template(
+        "course.html",
+        role=flask.g.role,
+        actual_role=flask.g.actual_role,
+        user=flask.g.user,
+        plans=plans,
+    )
+
+
 @bp.route("/api/feed")
 def api_feed() -> str:
     vault_path = flask.current_app.config["VAULT_PATH"]
@@ -121,6 +135,21 @@ def api_version() -> flask.Response:
     cache = flask.current_app.extensions.get("content_cache")
     generation = cache.generation if cache else 0
     return flask.jsonify({"generation": generation})
+
+
+@bp.route("/api/plans")
+def api_plans() -> str:
+    vault_path = flask.current_app.config["VAULT_PATH"]
+    offset = flask.request.args.get("offset", 0, type=int)
+    limit = min(flask.request.args.get("limit", 10, type=int), 20)
+    plans = cached(
+        f"plans:{offset}:{limit}",
+        content.get_weekly_plans,
+        vault_path,
+        limit=limit,
+        offset=offset,
+    )
+    return flask.render_template("_plans_fragment.html", plans=plans, is_fragment=True)
 
 
 @bp.route("/api/retros")
