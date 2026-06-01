@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Course{% endblock %}
+{% block crumb %}<span class="sep">/</span>Course{% endblock %}
+
+{% block content %}
+<h1 class="page-heading" data-irken="Course">Course</h1>
+<p class="page-blurb">The charted course. Weekly priorities, commitments, and what's been deferred.</p>
+
+{% if plans %}
+<div id="plans-container">
+    {% include "_plans_fragment.html" %}
+</div>
+{% else %}
+<section class="card">
+    <p class="text-muted">No course plotted yet. Run <code>/work-plan</code> to chart the first week.</p>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if plans %}
+<script>
+    initInfiniteScroll({
+        container: '#plans-container',
+        url: '{{ url_for("ship.api_plans") }}',
+        initialCount: {{ plans|length }},
+        limit: 10
+    });
+</script>
+{% endif %}
+{% endblock %}

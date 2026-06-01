@@ -34,7 +34,7 @@ def test_healthz_returns_200_for_any_role(client, groups):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("path", ["/", "/bridge", "/porthole", "/observation-deck", "/captains-log"])
+@pytest.mark.parametrize("path", ["/", "/bridge", "/porthole", "/observation-deck", "/captains-log", "/course"])
 def test_anonymous_gets_401(client, path):
     response = client.get(path)
     assert response.status_code == 401
@@ -57,7 +57,7 @@ def test_no_ship_groups_gets_401(client, path):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("path", ["/bridge", "/porthole", "/observation-deck", "/captains-log"])
+@pytest.mark.parametrize("path", ["/bridge", "/porthole", "/observation-deck", "/captains-log", "/course"])
 def test_cargo_gets_403(client, path):
     response = client.get(path, headers=auth_headers("testuser", CARGO_GROUPS))
     assert response.status_code == 403
@@ -129,6 +129,25 @@ class TestCaptainsLog:
     def test_cargo_gets_403(self, client):
         response = client.get("/captains-log", headers=auth_headers("testuser", CARGO_GROUPS))
         assert response.status_code == 403
+
+
+class TestCourse:
+    def test_captain_gets_200(self, client):
+        response = client.get("/course", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 200
+
+    def test_crew_gets_200(self, client):
+        response = client.get("/course", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+
+    def test_cargo_gets_403(self, client):
+        response = client.get("/course", headers=auth_headers("testuser", CARGO_GROUPS))
+        assert response.status_code == 403
+
+    def test_contains_plan_content(self, client):
+        response = client.get("/course", headers=auth_headers("testuser", CREW_GROUPS))
+        assert b"Course" in response.data
+        assert b"charted course" in response.data
 
 
 # ---------------------------------------------------------------------------
@@ -330,6 +349,26 @@ class TestApiVersion:
     def test_no_auth_returns_401(self, client):
         response = client.get("/api/version")
         assert response.status_code == 401
+
+
+class TestApiPlans:
+    def test_returns_html(self, client):
+        response = client.get("/api/plans", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+        assert "text/html" in response.content_type
+
+    def test_requires_crew(self, client):
+        response = client.get("/api/plans", headers=auth_headers("testuser", CARGO_GROUPS))
+        assert response.status_code == 403
+
+    def test_no_auth_returns_401(self, client):
+        response = client.get("/api/plans")
+        assert response.status_code == 401
+
+    def test_offset_beyond_data_returns_empty(self, client):
+        response = client.get("/api/plans?offset=1000", headers=auth_headers("testuser", CREW_GROUPS))
+        assert response.status_code == 200
+        assert response.data.strip() == b""
 
 
 class TestApiRetros:
