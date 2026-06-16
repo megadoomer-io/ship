@@ -279,9 +279,9 @@ details.entry-card[open] > summary.entry-header::after {
 }
 
 .badge-plan {
-    color: var(--info);
-    background: color-mix(in srgb, var(--info), transparent 85%);
-    border: 1px solid color-mix(in srgb, var(--info), transparent 70%);
+    color: var(--accent-secondary);
+    background: color-mix(in srgb, var(--accent-secondary), transparent 85%);
+    border: 1px solid color-mix(in srgb, var(--accent-secondary), transparent 70%);
 }
 
 
