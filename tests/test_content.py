@@ -267,7 +267,7 @@ class TestRouteIntegration:
         html = resp.data.decode()
         assert "Captain's Log" in html
         assert "Reflections on the voyage" in html
-        assert "retro-card" in html
+        assert "entry-card" in html
 
     def test_captains_log_has_metrics_table(self, client: flask.testing.FlaskClient) -> None:
         resp = client.get("/captains-log", headers=self.CREW_H)

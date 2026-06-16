@@ -213,28 +213,46 @@ h2 {
     border-radius: var(--radius-sm);
 }
 
-/* Timeline */
-.timeline-card { position: relative; }
+/* Entry cards (unified card component for all content types) */
+.entry-card { cursor: default; }
 
-.timeline-header {
+.entry-header {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    cursor: pointer;
+    list-style: none;
 }
 
-.timeline-date {
+.entry-header::-webkit-details-marker { display: none; }
+
+.entry-title {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+    min-width: 0;
+}
+
+.entry-date {
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--text-muted);
+    white-space: nowrap;
 }
 
-.timeline-title {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    color: var(--text);
+.entry-body { padding-top: 1rem; }
+
+details.entry-card > summary.entry-header::after {
+    content: '\25B6';
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-left: auto;
+    transition: transform 0.15s;
+}
+
+details.entry-card[open] > summary.entry-header::after {
+    transform: rotate(90deg);
 }
 
 .badge {
@@ -266,31 +284,6 @@ h2 {
     border: 1px solid color-mix(in srgb, var(--info), transparent 70%);
 }
 
-.timeline-compact {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
-}
-
-.timeline-title-inline {
-    flex: 1;
-    font-size: 0.9rem;
-    color: var(--text);
-}
-
-.timeline-date-inline {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-}
-
-.timeline-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 0;
-}
 
 /* Period filter */
 .period-filter {
@@ -337,27 +330,6 @@ h2 {
 
 .section-links a:hover { text-decoration: underline; }
 
-/* Captain's log */
-.retro-card { cursor: default; }
-
-.retro-summary {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    list-style: none;
-}
-
-.retro-summary::-webkit-details-marker { display: none; }
-
-.retro-title {
-    flex: 1;
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.retro-body { padding-top: 1rem; }
 
 .metrics-table {
     width: auto;
@@ -493,36 +465,6 @@ details.section-collapse > summary {
     color: var(--accent);
 }
 
-/* Card-level expand indicator */
-details.retro-card > summary.retro-summary::after,
-details.timeline-card > summary.timeline-header::after {
-    content: '\25B6';
-    font-size: 0.6rem;
-    color: var(--text-muted);
-    margin-left: auto;
-    transition: transform 0.15s;
-}
-
-details.retro-card[open] > summary.retro-summary::after,
-details.timeline-card[open] > summary.timeline-header::after {
-    transform: rotate(90deg);
-}
-
-/* Collapsible timeline cards (porthole) */
-details.timeline-card {
-    cursor: default;
-}
-
-details.timeline-card > summary {
-    list-style: none;
-    cursor: pointer;
-}
-
-details.timeline-card > summary::-webkit-details-marker { display: none; }
-
-details.timeline-card > .timeline-body {
-    padding-top: 0.75rem;
-}
 
 /* Daily entry separators (bridge) */
 .card > details.section-collapse + details.section-collapse {
