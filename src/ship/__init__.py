@@ -8,16 +8,12 @@ import flask_compress
 
 from ship import auth, routes, vault
 from ship.cache import ContentCache
+from ship.collapse import collapse_sections
 from ship.middleware import PathPrefixMiddleware
 
 _H1_RE = re.compile(r"<h[13][^>]*>(.*?)</h[13]>", re.DOTALL)
 
-_PORTAL_SHARED_CSS = (
-    pathlib.Path(__file__).resolve().parents[3]
-    / "portal"
-    / "static"
-    / "shared.css"
-)
+_PORTAL_SHARED_CSS = pathlib.Path(__file__).resolve().parents[3] / "portal" / "static" / "shared.css"
 
 
 def create_app() -> flask.Flask:
@@ -44,6 +40,10 @@ def create_app() -> flask.Flask:
     def extract_title_filter(html: str) -> str:
         match = _H1_RE.search(html)
         return match.group(1).strip() if match else "Entry"
+
+    @app.template_filter("collapse_sections")
+    def collapse_sections_filter(html: str, content_type: str | None = None) -> str:
+        return collapse_sections(html, content_type)
 
     flask_compress.Compress(app)
     app.register_blueprint(routes.bp)

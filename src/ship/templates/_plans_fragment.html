@@ -10,7 +10,7 @@
         <p class="text-muted" style="margin-bottom: var(--space-md);">{{ item.metadata['items_triaged'] }}/{{ item.metadata['items_total'] }} items triaged</p>
         {% endif %}
 
-        <div class="rendered-content">{{ item.rendered_html | safe }}</div>
+        <div class="rendered-content">{{ item.rendered_html | collapse_sections("plan") | safe }}</div>
     </div>
 </details>
 {% endfor %}

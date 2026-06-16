@@ -3,7 +3,7 @@
     <summary class="week-summary">{{ week.summary_label }}</summary>
     <div class="week-content">
         {% if week.weekly_summary_html %}
-        <div class="rendered-content week-summary-body">{{ week.weekly_summary_html | safe }}</div>
+        <div class="rendered-content week-summary-body">{{ week.weekly_summary_html | collapse_sections("weekly") | safe }}</div>
         {% endif %}
 
         {% for day in week.daily_groups %}

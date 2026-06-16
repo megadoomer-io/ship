@@ -17,7 +17,7 @@
         </table>
         {% endif %}
 
-        <div class="rendered-content">{{ item.rendered_html | safe }}</div>
+        <div class="rendered-content">{{ item.rendered_html | collapse_sections("retro") | safe }}</div>
 
         {% if item.metadata.get('period') %}
         <div class="week-links">

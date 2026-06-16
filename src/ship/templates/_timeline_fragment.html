@@ -5,6 +5,6 @@
         <span class="timeline-title-inline">{{ item.title }}</span>
         <time class="timeline-date-inline">{{ item.date.strftime('%b %d, %Y') }}</time>
     </summary>
-    <div class="timeline-body rendered-content">{{ item.rendered_html | safe }}</div>
+    <div class="timeline-body rendered-content">{{ item.rendered_html | collapse_sections("weekly") | safe }}</div>
 </details>
 {% endfor %}
