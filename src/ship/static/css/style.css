@@ -284,7 +284,6 @@ details.entry-card[open] > summary.entry-header::after {
     border: 1px solid color-mix(in srgb, var(--accent-secondary), transparent 70%);
 }
 
-
 /* Period filter */
 .period-filter {
     display: flex;
