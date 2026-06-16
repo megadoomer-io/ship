@@ -1,6 +1,6 @@
 import re
 
-_HEADER_RE = re.compile(r"<(h[23])>(.*?)</\1>", re.DOTALL)
+_HEADER_RE = re.compile(r"<(h[23])[^>]*>(.*?)</\1>", re.DOTALL)
 _TAG_STRIP_RE = re.compile(r"<[^>]+>")
 
 
@@ -102,13 +102,20 @@ def collapse_sections(html: str, content_type: str | None = None) -> str:
 
     out: list[str] = []
     out.extend(preamble)
+    seen_slugs: dict[str, int] = {}
+
+    def _unique_slug(text: str) -> str:
+        base = _strip_tags(text).lower().replace(" ", "-")[:60]
+        count = seen_slugs.get(base, 0)
+        seen_slugs[base] = count + 1
+        return base if count == 0 else f"{base}-{count}"
 
     for section in sections:
         open_attr = " open" if section["open"] else ""
         inner = str(section["inner_html"])
-        inner_slug = _strip_tags(inner).lower().replace(" ", "-")[:60]
+        slug = _unique_slug(inner)
         out.append(
-            f'<details class="section-collapse section-h2" data-section="{inner_slug}"{open_attr}>'
+            f'<details class="section-collapse section-h2" data-section="{slug}"{open_attr}>'
             f"<summary>{inner}</summary>"
             f'<div class="section-content">'
         )
@@ -121,7 +128,7 @@ def collapse_sections(html: str, content_type: str | None = None) -> str:
         for child in children:
             child_open = " open" if child["open"] else ""
             child_inner = str(child["inner_html"])
-            child_slug = _strip_tags(child_inner).lower().replace(" ", "-")[:60]
+            child_slug = _unique_slug(child_inner)
             out.append(
                 f'<details class="section-collapse section-h3" data-section="{child_slug}"{child_open}>'
                 f"<summary>{child_inner}</summary>"

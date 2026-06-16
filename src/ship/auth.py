@@ -1,4 +1,5 @@
 import enum
+import os
 import secrets
 
 import flask
@@ -103,7 +104,7 @@ def enforce_auth() -> flask.Response | None:
     if any(flask.request.path.startswith(p) for p in _SKIP_AUTH_PREFIXES):
         return None
 
-    if flask.current_app.debug:
+    if flask.current_app.debug and not os.environ.get("KUBERNETES_SERVICE_HOST"):
         flask.g.user = "dev"
         flask.g.actual_role = Role.CAPTAIN
         flask.g.role = get_effective_role(Role.CAPTAIN)
