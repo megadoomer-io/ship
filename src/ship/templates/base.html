@@ -169,16 +169,33 @@
                 });
             }
             function injectControls() {
+                document.querySelectorAll('details.section-collapse').forEach(function(detail) {
+                    var content = detail.querySelector(':scope > .section-content');
+                    if (!content) return;
+                    if (!content.querySelector(':scope > details.section-collapse')) return;
+                    if (detail.querySelector(':scope > summary > .section-controls')) return;
+                    var bar = document.createElement('span');
+                    bar.className = 'section-controls';
+                    bar.innerHTML = '<button class="section-ctrl" title="Expand all">' + expandSvg + '</button>' +
+                                    '<button class="section-ctrl" title="Collapse all">' + collapseSvg + '</button>';
+                    bar.children[0].addEventListener('click', function(e) { e.preventDefault(); setAll(content, true); });
+                    bar.children[1].addEventListener('click', function(e) { e.preventDefault(); setAll(content, false); });
+                    detail.querySelector(':scope > summary').appendChild(bar);
+                });
                 document.querySelectorAll('.rendered-content').forEach(function(rc) {
-                    if (!rc.querySelector('details.section-collapse')) return;
-                    if (rc.querySelector('.section-controls')) return;
-                    rc.style.position = 'relative';
+                    var kids = rc.querySelectorAll(':scope > details.section-collapse');
+                    if (kids.length < 2) return;
+                    if (rc.querySelector(':scope > .section-controls')) return;
                     var bar = document.createElement('div');
                     bar.className = 'section-controls';
                     bar.innerHTML = '<button class="section-ctrl" title="Expand all">' + expandSvg + '</button>' +
                                     '<button class="section-ctrl" title="Collapse all">' + collapseSvg + '</button>';
                     bar.children[0].addEventListener('click', function() { setAll(rc, true); });
                     bar.children[1].addEventListener('click', function() { setAll(rc, false); });
+                    rc.style.position = 'relative';
+                    bar.style.position = 'absolute';
+                    bar.style.top = '0';
+                    bar.style.right = '0';
                     rc.insertBefore(bar, rc.firstChild);
                 });
             }

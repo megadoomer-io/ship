@@ -7,7 +7,7 @@
 <p class="page-blurb">A window into the work. Weekly summaries and activity at a glance.</p>
 
 {% if timeline %}
-<div id="timeline-container">
+<div id="porthole-container">
     {% include "_timeline_fragment.html" %}
 </div>
 {% else %}
@@ -21,7 +21,7 @@
 {% if timeline %}
 <script>
     initInfiniteScroll({
-        container: '#timeline-container',
+        container: '#porthole-container',
         url: '{{ url_for("ship.api_timeline") }}',
         initialCount: {{ timeline|length }},
         limit: 10

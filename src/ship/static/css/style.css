@@ -189,7 +189,7 @@ h2 {
     width: 1.1em;
     height: 1.1em;
     margin-right: 0.5rem;
-    border: 2px solid var(--text-muted, #888);
+    border: 2px solid var(--text, #888);
     border-radius: 2px;
     background: transparent;
     vertical-align: middle;
@@ -213,28 +213,46 @@ h2 {
     border-radius: var(--radius-sm);
 }
 
-/* Timeline */
-.timeline-card { position: relative; }
+/* Entry cards (unified card component for all content types) */
+.entry-card { cursor: default; }
 
-.timeline-header {
+.entry-header {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    cursor: pointer;
+    list-style: none;
 }
 
-.timeline-date {
+.entry-header::-webkit-details-marker { display: none; }
+
+.entry-title {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 600;
+    min-width: 0;
+}
+
+.entry-date {
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--text-muted);
+    white-space: nowrap;
 }
 
-.timeline-title {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    color: var(--text);
+.entry-body { padding-top: 1rem; }
+
+details.entry-card > summary.entry-header::after {
+    content: '\25B6';
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-left: auto;
+    transition: transform 0.15s;
+}
+
+details.entry-card[open] > summary.entry-header::after {
+    transform: rotate(90deg);
 }
 
 .badge {
@@ -261,36 +279,11 @@ h2 {
 }
 
 .badge-plan {
-    color: var(--info);
-    background: color-mix(in srgb, var(--info), transparent 85%);
-    border: 1px solid color-mix(in srgb, var(--info), transparent 70%);
+    color: var(--accent-secondary);
+    background: color-mix(in srgb, var(--accent-secondary), transparent 85%);
+    border: 1px solid color-mix(in srgb, var(--accent-secondary), transparent 70%);
 }
 
-.timeline-compact {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0;
-}
-
-.timeline-title-inline {
-    flex: 1;
-    font-size: 0.9rem;
-    color: var(--text);
-}
-
-.timeline-date-inline {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-}
-
-.timeline-divider {
-    border: none;
-    border-top: 1px solid var(--border);
-    margin: 0;
-}
 
 /* Period filter */
 .period-filter {
@@ -321,54 +314,22 @@ h2 {
     background: color-mix(in srgb, var(--accent), transparent 90%);
 }
 
-/* Hierarchical feed */
-/* Obs Deck structural styles (week/day grouping) */
-.week-group {
-    border-bottom: 1px solid var(--border);
-    padding: 0.5rem 0;
-}
-
-.week-group:last-child { border-bottom: none; }
-
-.week-summary-body {
-    margin-bottom: var(--space-md);
-    padding-bottom: var(--space-md);
-    border-bottom: 1px solid var(--border);
-}
-
-.week-links {
+/* Section links (retro cross-references, etc.) */
+.section-links {
     margin-top: 0.75rem;
     padding-top: 0.5rem;
     border-top: 1px solid var(--border);
 }
 
-.week-links a {
+.section-links a {
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--accent);
     text-decoration: none;
 }
 
-.week-links a:hover { text-decoration: underline; }
+.section-links a:hover { text-decoration: underline; }
 
-/* Captain's log */
-.retro-card { cursor: default; }
-
-.retro-summary {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-}
-
-.retro-title {
-    flex: 1;
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
-    font-weight: 600;
-}
-
-.retro-body { padding-top: 1rem; }
 
 .metrics-table {
     width: auto;
@@ -437,8 +398,8 @@ h2 {
 
 /* Collapsible sections (unified across all views) */
 details.section-collapse {
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 details.section-collapse:first-child {
@@ -479,10 +440,13 @@ details.section-collapse details.section-collapse {
     margin-bottom: 0;
 }
 
+details.section-collapse > summary {
+    display: flex;
+    align-items: center;
+}
+
 .section-controls {
-    position: absolute;
-    top: 0;
-    right: 0;
+    margin-left: auto;
     display: flex;
     gap: 0.25rem;
 }
@@ -501,21 +465,6 @@ details.section-collapse details.section-collapse {
     color: var(--accent);
 }
 
-/* Collapsible timeline cards (porthole) */
-details.timeline-card {
-    cursor: default;
-}
-
-details.timeline-card > summary {
-    list-style: none;
-    cursor: pointer;
-}
-
-details.timeline-card > summary::-webkit-details-marker { display: none; }
-
-details.timeline-card > .timeline-body {
-    padding-top: 0.75rem;
-}
 
 /* Daily entry separators (bridge) */
 .card > details.section-collapse + details.section-collapse {

@@ -8,13 +8,13 @@
 
 <section class="card">
     <h2>Active Work</h2>
-    <div class="rendered-content">{{ active_work | safe }}</div>
+    <div class="rendered-content">{{ active_work | collapse_sections("bridge") | safe }}</div>
 </section>
 
 {% if weekly_summary %}
 <section class="card">
     <h2>Weekly Summary</h2>
-    <div class="rendered-content">{{ weekly_summary | safe }}</div>
+    <div class="rendered-content">{{ weekly_summary | collapse_sections("bridge") | safe }}</div>
 </section>
 {% endif %}
 
@@ -22,7 +22,7 @@
 <section class="card">
     <h2>Today's Entries</h2>
     {% for entry in daily_entries %}
-    <details {% if loop.first %}open{% endif %} class="section-collapse section-h3" data-section="entry-{{ loop.index }}">
+    <details {% if loop.first %}open{% endif %} class="section-collapse section-h2" data-section="entry-{{ loop.index }}">
         <summary>{{ entry | extract_title }}</summary>
         <div class="section-content rendered-content">{{ entry | safe }}</div>
     </details>

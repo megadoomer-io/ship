@@ -244,7 +244,7 @@ class TestRouteIntegration:
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "The view from above" in html
-        assert "week-group" in html
+        assert "section-collapse section-h2" in html
         assert "Activity" in html
 
     def test_observation_deck_period_filter(self, client: flask.testing.FlaskClient) -> None:
@@ -267,7 +267,7 @@ class TestRouteIntegration:
         html = resp.data.decode()
         assert "Captain's Log" in html
         assert "Reflections on the voyage" in html
-        assert "retro-card" in html
+        assert "entry-card" in html
 
     def test_captains_log_has_metrics_table(self, client: flask.testing.FlaskClient) -> None:
         resp = client.get("/captains-log", headers=self.CREW_H)

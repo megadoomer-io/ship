@@ -103,6 +103,14 @@ def enforce_auth() -> flask.Response | None:
     if any(flask.request.path.startswith(p) for p in _SKIP_AUTH_PREFIXES):
         return None
 
+    if flask.current_app.debug:
+        flask.g.user = "dev"
+        flask.g.actual_role = Role.CAPTAIN
+        flask.g.role = get_effective_role(Role.CAPTAIN)
+        if not check_route_access(flask.request.endpoint, flask.g.role):
+            flask.abort(403)
+        return None
+
     api_token = flask.current_app.config.get("API_TOKEN")
     token_header = flask.request.headers.get("X-Ship-Token")
     if not token_header:

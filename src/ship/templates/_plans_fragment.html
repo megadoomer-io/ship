@@ -1,11 +1,11 @@
 {% for item in plans %}
-<details {% if loop.first and not is_fragment %}open{% endif %} class="card retro-card">
-    <summary class="retro-summary">
+<details {% if loop.first and not is_fragment %}open{% endif %} class="card entry-card">
+    <summary class="entry-header">
         <span class="badge badge-plan">plan</span>
-        <span class="retro-title">{{ item.title }}</span>
-        <time class="timeline-date">{{ item.date.strftime('%b %d, %Y') }}</time>
+        <span class="entry-title">{{ item.title }}</span>
+        <time class="entry-date">{{ item.date.strftime('%b %d, %Y') }}</time>
     </summary>
-    <div class="retro-body">
+    <div class="entry-body">
         {% if item.metadata.get('items_triaged') is not none and item.metadata.get('items_total') is not none %}
         <p class="text-muted" style="margin-bottom: var(--space-md);">{{ item.metadata['items_triaged'] }}/{{ item.metadata['items_total'] }} items triaged</p>
         {% endif %}

@@ -1,11 +1,11 @@
 {% for item in retros %}
-<details {% if item.metadata.get('period') %}id="{{ item.metadata['period'] }}"{% endif %} {% if loop.first and not is_fragment %}open{% endif %} class="card retro-card">
-    <summary class="retro-summary">
+<details {% if item.metadata.get('period') %}id="{{ item.metadata['period'] }}"{% endif %} {% if loop.first and not is_fragment %}open{% endif %} class="card entry-card">
+    <summary class="entry-header">
         <span class="badge badge-retro">retro</span>
-        <span class="retro-title">{{ item.title }}</span>
-        <time class="timeline-date">{{ item.date.strftime('%b %d, %Y') }}</time>
+        <span class="entry-title">{{ item.title }}</span>
+        <time class="entry-date">{{ item.date.strftime('%b %d, %Y') }}</time>
     </summary>
-    <div class="retro-body">
+    <div class="entry-body">
         {% if item.metadata.get('metrics') %}
         <table class="metrics-table">
             <thead><tr><th>Metric</th><th>Value</th></tr></thead>
@@ -20,7 +20,7 @@
         <div class="rendered-content">{{ item.rendered_html | collapse_sections("retro") | safe }}</div>
 
         {% if item.metadata.get('period') %}
-        <div class="week-links">
+        <div class="section-links">
             <a href="{{ url_for('ship.observation_deck', week=item.metadata['period']) }}">View activity for this week</a>
         </div>
         {% endif %}
