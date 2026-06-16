@@ -159,7 +159,31 @@
                 state[page][section] = open;
                 localStorage.setItem(KEY, JSON.stringify(state));
             }
+            var expandSvg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="4,3 8,7 12,3"/><polyline points="4,9 8,13 12,9"/></svg>';
+            var collapseSvg = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="4,7 8,3 12,7"/><polyline points="4,13 8,9 12,13"/></svg>';
+            function setAll(container, open) {
+                container.querySelectorAll('details.section-collapse[data-section]').forEach(function(el) {
+                    el.open = open;
+                    var key = el.getAttribute('data-section');
+                    if (key) save(key, open);
+                });
+            }
+            function injectControls() {
+                document.querySelectorAll('.rendered-content').forEach(function(rc) {
+                    if (!rc.querySelector('details.section-collapse')) return;
+                    if (rc.querySelector('.section-controls')) return;
+                    rc.style.position = 'relative';
+                    var bar = document.createElement('div');
+                    bar.className = 'section-controls';
+                    bar.innerHTML = '<button class="section-ctrl" title="Expand all">' + expandSvg + '</button>' +
+                                    '<button class="section-ctrl" title="Collapse all">' + collapseSvg + '</button>';
+                    bar.children[0].addEventListener('click', function() { setAll(rc, true); });
+                    bar.children[1].addEventListener('click', function() { setAll(rc, false); });
+                    rc.insertBefore(bar, rc.firstChild);
+                });
+            }
             restore();
+            injectControls();
             document.addEventListener('toggle', function(e) {
                 var el = e.target;
                 if (el.classList && el.classList.contains('section-collapse')) {
