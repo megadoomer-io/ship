@@ -469,42 +469,29 @@ h2 {
     margin-top: 0;
 }
 
-.rendered-content details.section-collapse > summary {
-    font-family: var(--font-mono);
-    cursor: pointer;
-    list-style: none;
-}
-
-.rendered-content details.section-collapse > summary::-webkit-details-marker {
-    display: none;
-}
-
-.rendered-content details.section-collapse > summary::before {
-    content: "▸ ";
-    display: inline;
-    color: var(--text-muted);
-    font-size: 0.75em;
-}
-
-.rendered-content details.section-collapse[open] > summary::before {
-    content: "▾ ";
-}
-
 .rendered-content details.section-collapse.section-h2 > summary {
-    font-size: 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    padding: 0.5rem 0;
+}
+
+.rendered-content details.section-collapse.section-h2 > summary:hover {
+    color: var(--accent);
 }
 
 .rendered-content details.section-collapse.section-h3 > summary {
-    font-size: 0.95rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
     color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem 0;
 }
 
-.rendered-content details.section-collapse > summary:hover {
-    color: var(--accent);
-}
-
-.rendered-content details.section-collapse > summary:hover::before {
-    color: var(--accent);
+.rendered-content details.section-collapse.section-h3 > summary:hover {
+    color: var(--text);
 }
 
 /* Collapsible timeline cards (porthole) */
