@@ -136,6 +136,38 @@
                 }).catch(function() {});
             }, 30000);
         })();
+        (function() {
+            var KEY = 'ship-sections';
+            var page = location.pathname.replace(/\/$/, '') || '/';
+            function getState() {
+                try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) { return {}; }
+            }
+            function restore() {
+                var state = getState();
+                var pageState = state[page];
+                if (!pageState) return;
+                document.querySelectorAll('details.section-collapse[data-section]').forEach(function(el) {
+                    var key = el.getAttribute('data-section');
+                    if (key && key in pageState) {
+                        el.open = pageState[key];
+                    }
+                });
+            }
+            function save(section, open) {
+                var state = getState();
+                if (!state[page]) state[page] = {};
+                state[page][section] = open;
+                localStorage.setItem(KEY, JSON.stringify(state));
+            }
+            restore();
+            document.addEventListener('toggle', function(e) {
+                var el = e.target;
+                if (el.classList && el.classList.contains('section-collapse')) {
+                    var key = el.getAttribute('data-section');
+                    if (key) save(key, el.open);
+                }
+            }, true);
+        })();
     </script>
 </body>
 </html>

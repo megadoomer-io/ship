@@ -3,52 +3,13 @@ import re
 _HEADER_RE = re.compile(r"<(h[23])>(.*?)</\1>", re.DOTALL)
 _TAG_STRIP_RE = re.compile(r"<[^>]+>")
 
-COLLAPSE_RULES: dict[str, dict[str, bool]] = {
-    "plan": {
-        "Commitments": True,
-        "GSTACK REVIEW REPORT": False,
-        "Deferred": False,
-        "Dropped": False,
-        "Completed": False,
-        "Carried Forward": False,
-        "Active": False,
-        "Blocked": False,
-        "Retro Awareness": False,
-        "Notes": False,
-    },
-    "retro": {
-        "Plan vs Actual": True,
-        "Highlights": True,
-        "Trends": False,
-    },
-    "weekly": {
-        "Highlights": True,
-        "Themes": True,
-        "By Project": False,
-    },
-}
-
 
 def _strip_tags(html: str) -> str:
     return _TAG_STRIP_RE.sub("", html).strip()
 
 
-def _is_open(text: str, rules: dict[str, bool] | None) -> bool:
-    if not rules:
-        return True
-    plain = _strip_tags(text)
-    for pattern, default_open in rules.items():
-        if pattern.lower() in plain.lower():
-            return default_open
-    return True
-
-
 def collapse_sections(html: str, content_type: str | None = None) -> str:
     if not content_type or not html:
-        return html
-
-    rules = COLLAPSE_RULES.get(content_type)
-    if rules is None:
         return html
 
     parts: list[dict[str, object]] = []
@@ -78,6 +39,7 @@ def collapse_sections(html: str, content_type: str | None = None) -> str:
     current_h2: dict[str, object] | None = None
     current_h3: dict[str, object] | None = None
     preamble: list[str] = []
+    h2_index = 0
 
     def _close_h3() -> None:
         nonlocal current_h3
@@ -95,6 +57,7 @@ def collapse_sections(html: str, content_type: str | None = None) -> str:
             sections.append(current_h2)
             current_h2 = None
 
+    h3_index = 0
     for part in parts:
         if part["type"] == "header":
             level = part["level"]
@@ -103,19 +66,23 @@ def collapse_sections(html: str, content_type: str | None = None) -> str:
                 current_h2 = {
                     "inner_html": part["inner_html"],
                     "level": 2,
-                    "open": _is_open(str(part["inner_html"]), rules),
+                    "open": h2_index == 0,
                     "body": [],
                     "children": [],
                 }
+                h2_index += 1
+                h3_index = 0
             elif level == 3:
                 _close_h3()
                 if current_h2 is not None:
+                    is_first_h2 = h2_index == 1
                     current_h3 = {
                         "inner_html": part["inner_html"],
                         "level": 3,
-                        "open": _is_open(str(part["inner_html"]), rules),
+                        "open": is_first_h2 and h3_index == 0,
                         "body": [],
                     }
+                    h3_index += 1
                 else:
                     preamble.append(str(part["raw"]))
         else:
@@ -139,7 +106,12 @@ def collapse_sections(html: str, content_type: str | None = None) -> str:
     for section in sections:
         open_attr = " open" if section["open"] else ""
         inner = str(section["inner_html"])
-        out.append(f'<details class="section-collapse section-h2"{open_attr}><summary>{inner}</summary>')
+        inner_slug = _strip_tags(inner).lower().replace(" ", "-")[:60]
+        out.append(
+            f'<details class="section-collapse section-h2" data-section="{inner_slug}"{open_attr}>'
+            f"<summary>{inner}</summary>"
+            f'<div class="section-content">'
+        )
         body = section["body"]
         assert isinstance(body, list)
         out.extend(str(b) for b in body)
@@ -149,12 +121,17 @@ def collapse_sections(html: str, content_type: str | None = None) -> str:
         for child in children:
             child_open = " open" if child["open"] else ""
             child_inner = str(child["inner_html"])
-            out.append(f'<details class="section-collapse section-h3"{child_open}><summary>{child_inner}</summary>')
+            child_slug = _strip_tags(child_inner).lower().replace(" ", "-")[:60]
+            out.append(
+                f'<details class="section-collapse section-h3" data-section="{child_slug}"{child_open}>'
+                f"<summary>{child_inner}</summary>"
+                f'<div class="section-content">'
+            )
             child_body = child["body"]
             assert isinstance(child_body, list)
             out.extend(str(b) for b in child_body)
-            out.append("</details>")
+            out.append("</div></details>")
 
-        out.append("</details>")
+        out.append("</div></details>")
 
     return "".join(out)
