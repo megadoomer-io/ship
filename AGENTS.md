@@ -112,7 +112,7 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - (none currently)
 
 ### Needs discussion / planning
-- [ ] View-as controls in nav bar on desktop widths (floating pill as mobile fallback)
+- (none currently)
 
 ### Deprioritized
 - [ ] Multi-source vault support (see docs/decisions/2026-05-22-multi-source-vaults.md) — gathering team feedback, may be YAGNI
@@ -132,3 +132,4 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - [x] DX docs: CHANGELOG, CONTRIBUTING, issue templates
 - [x] Remove `?token=` query param auth — header-based auth only (X-Ship-Token, Authorization Bearer)
 - [x] Content auto-refresh — JS polls /api/version every 30s, reloads when cache generation changes
+- [x] View-as controls in nav bar with two-tier nav and dropdown (2ba931b)
