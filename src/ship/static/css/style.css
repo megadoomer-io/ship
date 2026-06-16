@@ -498,6 +498,28 @@ h2 {
     padding: 0.75rem 0 0.75rem var(--space-md);
 }
 
+.section-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 0.25rem;
+}
+
+.section-ctrl {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.25rem;
+    line-height: 1;
+    border-radius: var(--radius-sm);
+}
+
+.section-ctrl:hover {
+    color: var(--accent);
+}
+
 /* Collapsible timeline cards (porthole) */
 details.timeline-card {
     cursor: default;
