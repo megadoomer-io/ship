@@ -22,9 +22,9 @@
 <section class="card">
     <h2>Today's Entries</h2>
     {% for entry in daily_entries %}
-    <details {% if loop.first %}open{% endif %} class="daily-entry">
-        <summary class="day-summary">{{ entry | extract_title }}</summary>
-        <div class="rendered-content">{{ entry | safe }}</div>
+    <details {% if loop.first %}open{% endif %} class="section-collapse section-h3" data-section="entry-{{ loop.index }}">
+        <summary>{{ entry | extract_title }}</summary>
+        <div class="section-content rendered-content">{{ entry | safe }}</div>
     </details>
     {% endfor %}
 </section>

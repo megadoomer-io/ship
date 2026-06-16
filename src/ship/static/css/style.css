@@ -322,6 +322,7 @@ h2 {
 }
 
 /* Hierarchical feed */
+/* Obs Deck structural styles (week/day grouping) */
 .week-group {
     border-bottom: 1px solid var(--border);
     padding: 0.5rem 0;
@@ -329,36 +330,11 @@ h2 {
 
 .week-group:last-child { border-bottom: none; }
 
-.week-summary {
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text);
-    cursor: pointer;
-    padding: 0.5rem 0;
-}
-
-.week-summary:hover { color: var(--accent); }
-.week-content { padding: 0.75rem 0 0.75rem var(--space-md); }
-
 .week-summary-body {
     margin-bottom: var(--space-md);
     padding-bottom: var(--space-md);
     border-bottom: 1px solid var(--border);
 }
-
-.day-group { margin-bottom: 0.5rem; }
-
-.day-summary {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 0.25rem 0;
-}
-
-.day-summary:hover { color: var(--text); }
-.day-content { padding: var(--space-sm) 0 var(--space-sm) var(--space-md); }
 
 .week-links {
     margin-top: 0.75rem;
@@ -459,17 +435,17 @@ h2 {
     background: color-mix(in srgb, var(--accent), transparent 90%);
 }
 
-/* Section-level collapsing (inside rendered content) */
-.rendered-content details.section-collapse {
+/* Collapsible sections (unified across all views) */
+details.section-collapse {
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
 }
 
-.rendered-content details.section-collapse:first-child {
+details.section-collapse:first-child {
     margin-top: 0;
 }
 
-.rendered-content details.section-collapse.section-h2 > summary {
+details.section-collapse.section-h2 > summary {
     font-family: var(--font-mono);
     font-size: 0.9rem;
     font-weight: 600;
@@ -478,11 +454,11 @@ h2 {
     padding: 0.5rem 0;
 }
 
-.rendered-content details.section-collapse.section-h2 > summary:hover {
+details.section-collapse.section-h2 > summary:hover {
     color: var(--accent);
 }
 
-.rendered-content details.section-collapse.section-h3 > summary {
+details.section-collapse.section-h3 > summary {
     font-family: var(--font-mono);
     font-size: 0.85rem;
     color: var(--text-muted);
@@ -490,12 +466,17 @@ h2 {
     padding: 0.25rem 0;
 }
 
-.rendered-content details.section-collapse.section-h3 > summary:hover {
+details.section-collapse.section-h3 > summary:hover {
     color: var(--text);
 }
 
-.rendered-content details.section-collapse > .section-content {
+details.section-collapse > .section-content {
     padding: 0.75rem 0 0.75rem var(--space-md);
+}
+
+details.section-collapse details.section-collapse {
+    margin-top: 0.5rem;
+    margin-bottom: 0;
 }
 
 .section-controls {
@@ -536,13 +517,10 @@ details.timeline-card > .timeline-body {
     padding-top: 0.75rem;
 }
 
-/* Collapsible daily entries (bridge) */
-details.daily-entry {
-    border-bottom: 1px solid var(--border);
-    padding: var(--space-sm) 0;
+/* Daily entry separators (bridge) */
+.card > details.section-collapse + details.section-collapse {
+    border-top: 1px solid var(--border);
 }
-
-details.daily-entry:last-child { border-bottom: none; }
 
 /* Infinite scroll sentinel */
 .scroll-sentinel { height: 1px; }
