@@ -11,10 +11,8 @@
             <summary>{{ day.date_label }} ({{ day.entries | length }} {% if day.entries | length == 1 %}entry{% else %}entries{% endif %})</summary>
             <div class="section-content">
                 {% for entry in day.entries %}
-                <details {% if loop.first %}open{% endif %} class="section-collapse section-h3" data-section="entry-{{ day.date }}-{{ loop.index }}">
-                    <summary>{{ entry | extract_title }}</summary>
-                    <div class="section-content rendered-content">{{ entry | safe }}</div>
-                </details>
+                <div class="rendered-content">{{ entry | safe }}</div>
+                {% if not loop.last %}<hr>{% endif %}
                 {% endfor %}
             </div>
         </details>
