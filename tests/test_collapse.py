@@ -16,6 +16,42 @@ class TestBasicWrapping:
         assert "<p>Body text</p>" in result
         assert "<ul><li>item</li></ul>" in result
 
+    def test_section_content_wrapped_in_div(self) -> None:
+        html = "<h2>Title</h2><p>Body</p>"
+        result = collapse_sections(html, "plan")
+        assert '<div class="section-content">' in result
+        assert "</div></details>" in result
+
+
+class TestFirstSectionOnly:
+    def test_first_h2_is_open(self) -> None:
+        html = "<h2>First</h2><p>A</p><h2>Second</h2><p>B</p><h2>Third</h2><p>C</p>"
+        result = collapse_sections(html, "plan")
+        details = result.split("<details")
+        assert " open" in details[1]
+        assert " open" not in details[2]
+        assert " open" not in details[3]
+
+    def test_first_h3_in_first_h2_is_open(self) -> None:
+        html = "<h2>Parent</h2><h3>Child1</h3><p>A</p><h3>Child2</h3><p>B</p>"
+        result = collapse_sections(html, "plan")
+        h3_blocks = [s for s in result.split("<details") if "section-h3" in s]
+        assert len(h3_blocks) == 2
+        assert " open" in h3_blocks[0]
+        assert " open" not in h3_blocks[1]
+
+    def test_h3_in_second_h2_all_collapsed(self) -> None:
+        html = "<h2>First</h2><h3>Sub1</h3><p>A</p><h2>Second</h2><h3>Sub2</h3><p>B</p><h3>Sub3</h3><p>C</p>"
+        result = collapse_sections(html, "plan")
+        second_h2_pos = result.index('data-section="second"')
+        h3_after_second = result[second_h2_pos:]
+        assert h3_after_second.count(" open") == 0
+
+    def test_single_h2_is_open(self) -> None:
+        html = "<h2>Only</h2><p>Content</p>"
+        result = collapse_sections(html, "plan")
+        assert " open" in result.split("</summary>")[0]
+
 
 class TestNesting:
     def test_h3_nests_inside_h2(self) -> None:
@@ -60,32 +96,22 @@ class TestPreamble:
         assert "<h1>Title</h1>" in result
 
 
-class TestRules:
-    def test_matched_section_collapsed(self) -> None:
-        html = "<h2>GSTACK REVIEW REPORT</h2><p>Long analysis</p>"
-        result = collapse_sections(html, "plan")
-        assert 'class="section-collapse section-h2">' in result
-        assert " open" not in result.split("</summary>")[0]
-
-    def test_matched_section_open(self) -> None:
+class TestDataSectionAttribute:
+    def test_h2_has_data_section_slug(self) -> None:
         html = "<h2>Commitments</h2><p>Tasks</p>"
         result = collapse_sections(html, "plan")
-        assert " open" in result.split("</summary>")[0]
+        assert 'data-section="commitments"' in result
 
-    def test_unmatched_section_defaults_open(self) -> None:
-        html = "<h2>Something New</h2><p>Content</p>"
+    def test_h3_has_data_section_slug(self) -> None:
+        html = "<h2>Parent</h2><h3>Ops &amp; Promotions</h3><p>Tasks</p>"
         result = collapse_sections(html, "plan")
-        assert " open" in result.split("</summary>")[0]
+        assert 'data-section="ops-&amp;-promotions"' in result
 
-    def test_substring_matching(self) -> None:
-        html = "<h2>Trends vs W23</h2><p>Table</p>"
-        result = collapse_sections(html, "retro")
-        assert " open" not in result.split("</summary>")[0]
-
-    def test_case_insensitive_matching(self) -> None:
-        html = "<h2>commitments</h2><p>Tasks</p>"
+    def test_slug_truncated_at_60_chars(self) -> None:
+        long_title = "A" * 100
+        html = f"<h2>{long_title}</h2><p>Content</p>"
         result = collapse_sections(html, "plan")
-        assert " open" in result.split("</summary>")[0]
+        assert 'data-section="' + "a" * 60 + '"' in result
 
 
 class TestInlineMarkup:
@@ -112,33 +138,11 @@ class TestEdgeCases:
         html = "<h2>Section</h2><p>Body</p>"
         assert collapse_sections(html, None) == html
 
-    def test_unknown_content_type_returns_unchanged(self) -> None:
-        html = "<h2>Section</h2><p>Body</p>"
-        assert collapse_sections(html, "unknown_type") == html
-
     def test_empty_content_type_returns_unchanged(self) -> None:
         html = "<h2>Section</h2><p>Body</p>"
         assert collapse_sections(html, "") == html
 
-
-class TestContentTypes:
-    def test_retro_highlights_open(self) -> None:
-        html = "<h2>Highlights</h2><p>Good stuff</p>"
-        result = collapse_sections(html, "retro")
-        assert " open" in result.split("</summary>")[0]
-
-    def test_weekly_by_project_collapsed(self) -> None:
-        html = "<h2>By Project</h2><p>Details</p>"
-        result = collapse_sections(html, "weekly")
-        assert " open" not in result.split("</summary>")[0]
-
-    def test_plan_multiple_sections_mixed_state(self) -> None:
-        html = (
-            "<h2>Commitments</h2><p>Tasks</p><h2>Deferred</h2><p>Later</p><h2>GSTACK REVIEW REPORT</h2><p>Analysis</p>"
-        )
-        result = collapse_sections(html, "plan")
-        details_blocks = result.split("<details")
-        assert len(details_blocks) == 4  # 1 preamble (empty) + 3 details
-        assert " open" in details_blocks[1]  # Commitments
-        assert " open" not in details_blocks[2]  # Deferred
-        assert " open" not in details_blocks[3]  # GSTACK REVIEW REPORT
+    def test_any_content_type_activates_collapsing(self) -> None:
+        html = "<h2>Section</h2><p>Body</p>"
+        result = collapse_sections(html, "anything")
+        assert "section-collapse" in result
