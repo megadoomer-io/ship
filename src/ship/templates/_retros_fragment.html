@@ -20,7 +20,7 @@
         <div class="rendered-content">{{ item.rendered_html | collapse_sections("retro") | safe }}</div>
 
         {% if item.metadata.get('period') %}
-        <div class="week-links">
+        <div class="section-links">
             <a href="{{ url_for('ship.observation_deck', week=item.metadata['period']) }}">View activity for this week</a>
         </div>
         {% endif %}

@@ -189,7 +189,7 @@ h2 {
     width: 1.1em;
     height: 1.1em;
     margin-right: 0.5rem;
-    border: 2px solid var(--text-muted, #888);
+    border: 2px solid var(--text, #888);
     border-radius: 2px;
     background: transparent;
     vertical-align: middle;
@@ -321,35 +321,21 @@ h2 {
     background: color-mix(in srgb, var(--accent), transparent 90%);
 }
 
-/* Hierarchical feed */
-/* Obs Deck structural styles (week/day grouping) */
-.week-group {
-    border-bottom: 1px solid var(--border);
-    padding: 0.5rem 0;
-}
-
-.week-group:last-child { border-bottom: none; }
-
-.week-summary-body {
-    margin-bottom: var(--space-md);
-    padding-bottom: var(--space-md);
-    border-bottom: 1px solid var(--border);
-}
-
-.week-links {
+/* Section links (retro cross-references, etc.) */
+.section-links {
     margin-top: 0.75rem;
     padding-top: 0.5rem;
     border-top: 1px solid var(--border);
 }
 
-.week-links a {
+.section-links a {
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--accent);
     text-decoration: none;
 }
 
-.week-links a:hover { text-decoration: underline; }
+.section-links a:hover { text-decoration: underline; }
 
 /* Captain's log */
 .retro-card { cursor: default; }
@@ -359,7 +345,10 @@ h2 {
     align-items: center;
     gap: 0.75rem;
     cursor: pointer;
+    list-style: none;
 }
+
+.retro-summary::-webkit-details-marker { display: none; }
 
 .retro-title {
     flex: 1;
@@ -437,8 +426,8 @@ h2 {
 
 /* Collapsible sections (unified across all views) */
 details.section-collapse {
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 details.section-collapse:first-child {
@@ -479,10 +468,13 @@ details.section-collapse details.section-collapse {
     margin-bottom: 0;
 }
 
+details.section-collapse > summary {
+    display: flex;
+    align-items: center;
+}
+
 .section-controls {
-    position: absolute;
-    top: 0;
-    right: 0;
+    margin-left: auto;
     display: flex;
     gap: 0.25rem;
 }
@@ -499,6 +491,21 @@ details.section-collapse details.section-collapse {
 
 .section-ctrl:hover {
     color: var(--accent);
+}
+
+/* Card-level expand indicator */
+details.retro-card > summary.retro-summary::after,
+details.timeline-card > summary.timeline-header::after {
+    content: '\25B6';
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    margin-left: auto;
+    transition: transform 0.15s;
+}
+
+details.retro-card[open] > summary.retro-summary::after,
+details.timeline-card[open] > summary.timeline-header::after {
+    transform: rotate(90deg);
 }
 
 /* Collapsible timeline cards (porthole) */

@@ -244,7 +244,7 @@ class TestRouteIntegration:
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "The view from above" in html
-        assert "week-group" in html
+        assert "section-collapse section-h2" in html
         assert "Activity" in html
 
     def test_observation_deck_period_filter(self, client: flask.testing.FlaskClient) -> None:

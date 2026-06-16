@@ -14,6 +14,10 @@ from ship.middleware import PathPrefixMiddleware
 _H1_RE = re.compile(r"<h[13][^>]*>(.*?)</h[13]>", re.DOTALL)
 
 _PORTAL_SHARED_CSS = pathlib.Path(__file__).resolve().parents[3] / "portal" / "static" / "shared.css"
+if not _PORTAL_SHARED_CSS.exists():
+    _PORTAL_SHARED_CSS = (
+        pathlib.Path.home() / "src" / "github.com" / "megadoomer-io" / "portal" / "static" / "shared.css"
+    )
 
 
 def create_app() -> flask.Flask:
