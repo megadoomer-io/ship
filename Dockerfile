@@ -46,4 +46,15 @@ USER ship
 
 EXPOSE 8080
 
-CMD ["gunicorn", "--workers", "1", "--bind", "0.0.0.0:8080", "ship:create_app()"]
+# Single process (one vault clone, one in-memory content cache) but multiple
+# threads so a slow content render doesn't starve liveness probes. gthread
+# gives us cheap concurrency without forking multiple workers that would
+# each maintain their own vault state.
+CMD ["gunicorn", \
+     "--worker-class", "gthread", \
+     "--workers", "1", \
+     "--threads", "4", \
+     "--bind", "0.0.0.0:8080", \
+     "--access-logfile", "-", \
+     "--access-logformat", "%(t)s %(s)s %(M)sms %(m)s %(U)s%(q)s %(b)sb", \
+     "ship:create_app()"]
