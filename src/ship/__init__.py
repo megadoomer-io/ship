@@ -1,7 +1,9 @@
+import contextlib
 import os
 import pathlib
 import re
 import secrets
+from typing import Any
 
 import flask
 import flask_compress
@@ -36,7 +38,9 @@ def create_app() -> flask.Flask:
     app.secret_key = os.environ.get("SHIP_SECRET_KEY", secrets.token_hex(32))
 
     app.config["COMPRESS_MIMETYPES"] = ["text/html", "text/css", "application/json"]
-    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 3600
+    # Debug serves fresh assets every reload so CSS/JS edits show up without
+    # hard-refresh; prod relies on the 1h cache + redeploy cadence.
+    app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 0 if app.debug else 3600
 
     app.extensions["content_cache"] = ContentCache()
 
@@ -48,6 +52,22 @@ def create_app() -> flask.Flask:
     @app.template_filter("collapse_sections")
     def collapse_sections_filter(html: str, content_type: str | None = None) -> str:
         return collapse_sections(html, content_type)
+
+    # Append ?v=<mtime> to static URLs so browsers re-fetch when files change
+    # on disk. Without this, the 1h cache + same URL means edits don't show
+    # until the cache window expires or the user hard-reloads.
+    _static_root = pathlib.Path(app.static_folder) if app.static_folder else None
+
+    @app.url_defaults
+    def _static_cache_bust(endpoint: str, values: dict[str, Any]) -> None:
+        if endpoint != "static" or not _static_root or "v" in values:
+            return
+        filename = values.get("filename")
+        if not filename:
+            return
+        path = _static_root / filename
+        with contextlib.suppress(OSError):
+            values["v"] = int(path.stat().st_mtime)
 
     flask_compress.Compress(app)
     app.register_blueprint(routes.bp)

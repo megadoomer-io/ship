@@ -22,7 +22,7 @@
 <section class="card">
     <h2>Today's Entries</h2>
     {% for entry in daily_entries %}
-    <details {% if loop.first %}open{% endif %} class="section-collapse section-h2" data-section="entry-{{ loop.index }}">
+    <details {% if loop.first %}open{% endif %} class="section-collapse section-h2" data-section="entry-{{ loop.index }}" data-filterable>
         <summary>{{ entry | extract_title }}</summary>
         <div class="section-content rendered-content">{{ entry | safe }}</div>
     </details>
