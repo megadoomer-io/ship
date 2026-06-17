@@ -119,6 +119,8 @@ All megadoomer.io traffic routes through nginx-gateway-fabric (Gateway API HTTPR
 - [ ] HTML sanitization in markdown.render(): add nh3 or bleach allowlist if Ship ever ingests content from untrusted sources. Multi-source vault support is the trigger. Current single-owner vault is trusted input.
 
 ### Done
+- [x] **ship#11: filtering feature** — sticky filter bar (third nav row), `/` hotkey, debounced text match against entry-card / `[data-filterable]` textContent, section structure preserved (Active Work, Weekly Summary, week/day headers stay visible), auto-expand collapsed details containing matches, Escape / clear button restores. Per-page filterable units: entry-cards (Porthole/Captain's Log/Course/Obs Deck day entries) and `[data-filterable]` (Bridge daily entries). Static asset cache-bust via `?v=<mtime>` so JS/CSS edits ship without manual hard-reload.
+- [x] `[-]` partial task checkbox state — mistune's `task_lists` only handles `[ ]`/`[x]`; post-processor in `markdown.py` adds `class="task-list-item-checkbox partial"` for `[-]` items, styled as a dashed orange box.
 - [x] SHIP_API_TOKEN: token-based auth bypass for automated tools
 - [x] /static/ auth bypass in megadoomer-config HTTPRoute
 - [x] DESIGN.md: formalize megadoomer.io visual language

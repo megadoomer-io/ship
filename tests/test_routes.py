@@ -389,3 +389,34 @@ class TestApiRetros:
         response = client.get("/api/retros?offset=1000", headers=auth_headers("testuser", CREW_GROUPS))
         assert response.status_code == 200
         assert response.data.strip() == b""
+
+
+class TestFilterBar:
+    """The filter bar is shared base-layout UI; it should render on every
+    authenticated content page and load filter.js."""
+
+    @pytest.mark.parametrize("path", ["/bridge", "/porthole", "/observation-deck", "/captains-log", "/course"])
+    def test_filter_bar_present_for_captain(self, client, path):
+        response = client.get(path, headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 200
+        assert b"data-filter-bar" in response.data
+        assert b'id="filter-input"' in response.data
+        assert b"press / to filter" in response.data
+        assert b"filter.js" in response.data
+
+    def test_filter_bar_absent_for_unauthenticated(self, client):
+        # 401 page has no nav; filter bar is part of the nav row stack.
+        response = client.get("/bridge")
+        assert response.status_code == 401
+        assert b"data-filter-bar" not in response.data
+
+    def test_bridge_daily_entries_marked_filterable(self, client):
+        response = client.get("/bridge", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 200
+        assert b"data-filterable" in response.data
+
+    def test_obs_deck_entries_marked_filterable(self, client):
+        response = client.get("/observation-deck", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 200
+        # Per-day entries inside the feed fragment carry data-filterable.
+        assert b"data-filterable" in response.data

@@ -32,6 +32,9 @@
                     container.insertAdjacentHTML('beforeend', html);
                     offset += config.limit;
                     loading = false;
+                    document.dispatchEvent(new CustomEvent('ship:content-appended', {
+                        detail: { container: container }
+                    }));
                 })
                 .catch(function () {
                     loading = false;

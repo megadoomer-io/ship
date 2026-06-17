@@ -146,7 +146,8 @@ class TestPathPrefixIntegration:
         # via environ_overrides to simulate what the middleware would do.
         with prefixed_app.test_request_context("/bridge", environ_overrides={"SCRIPT_NAME": "/ship"}):
             url = flask.url_for("static", filename="css/style.css")
-            assert url == "/ship/static/css/style.css"
+            # url_for also appends a ?v=<mtime> cache-bust query string
+            assert url.startswith("/ship/static/css/style.css")
 
     def test_healthz_accessible_with_prefix(self, prefixed_client: flask.testing.FlaskClient) -> None:
         """Healthz responds 200 at the prefixed path."""
