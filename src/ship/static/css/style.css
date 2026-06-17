@@ -204,6 +204,14 @@ h2 {
     background-repeat: no-repeat;
 }
 
+.rendered-content .task-list-item input[type="checkbox"].partial {
+    border-color: var(--accent-secondary, #888);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e6a23c' stroke-width='3.5' stroke-linecap='round'%3E%3Cpath d='M5 12h14'/%3E%3C/svg%3E");
+    background-size: 90%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 .tag {
     font-family: var(--font-mono);
     font-size: 0.8em;

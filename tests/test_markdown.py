@@ -49,6 +49,23 @@ def test_renders_task_lists():
     assert 'type="checkbox"' in result
 
 
+def test_renders_partial_task_state():
+    text = "- [-] In progress\n- [x] Done\n- [ ] Todo"
+    result = markdown.render(text)
+    assert "[-]" not in result
+    assert 'class="task-list-item-checkbox partial"' in result
+    assert "In progress</li>" in result
+
+
+def test_partial_task_preserves_inline_markup():
+    text = "- [-] friday **repo** maintenance #124"
+    result = markdown.render(text)
+    assert "[-]" not in result
+    assert "<strong>repo</strong>" in result
+    assert 'class="tag">#124</span>' in result
+    assert 'class="task-list-item-checkbox partial"' in result
+
+
 def test_renders_links():
     result = markdown.render("[click here](https://example.com)")
     assert 'href="https://example.com"' in result
