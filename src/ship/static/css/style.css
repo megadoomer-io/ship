@@ -1,4 +1,6 @@
-/* Ship-specific styles. Shared variables come from /static/shared.css */
+/* Ship-specific styles. Shared variables + the Irken shadow recipe come from
+   /shared.css, which is owned and served at the megadoomer.io root by Portal.
+   Ship consumes it (and /fonts/irken.ttf) at runtime — see DESIGN.md. */
 
 
 @font-face {
@@ -40,10 +42,8 @@ h1.page-heading::before {
     color: var(--accent);
     opacity: var(--title-shadow-opacity);
     z-index: -1;
-    text-shadow: 0 0 8px var(--accent),
-                 0 0 20px var(--accent),
-                 0 0 40px color-mix(in srgb, var(--accent), transparent 50%);
-    letter-spacing: 0.2em;
+    text-shadow: var(--irken-text-shadow);
+    letter-spacing: var(--irken-tracking);
     text-transform: none;
     pointer-events: none;
 }

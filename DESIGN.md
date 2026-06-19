@@ -198,7 +198,7 @@ Ship uses `--accent` (green) for its login CTA, unlike Portal which uses `--acce
 
 Page headings (`h1.page-heading`) use Portal's group label style: small uppercase monospace with tracked letter-spacing and a green accent color with border-bottom separator. This matches Portal's `ADMIN`, `MEDIA`, etc. group labels. Each page has a one-line blurb in muted sans-serif below the heading.
 
-Behind each page heading, a `::before` pseudo-element renders the heading text in the Irken alien font with a triple-layer green glow, using the same shared pattern defined in Portal's DESIGN.md (Irken font, `--title-shadow-opacity`, green text-shadow layers).
+Behind each page heading, a `::before` pseudo-element renders the heading text in the Irken alien font with a triple-layer green glow. The glow recipe and letter-spacing come from shared tokens in `shared.css` — `var(--irken-text-shadow)` and `var(--irken-tracking)` — so Ship and Portal share one definition and can't drift. The Irken font itself is served from Portal's root (`/fonts/irken.ttf`); opacity follows `--title-shadow-opacity` (0.08 light / 0.25 dark).
 
 Ship's application differs from Portal's in one key way: the Irken shadow is much larger than the foreground text (2rem shadow behind 0.75rem heading), whereas Portal's hero shadow is roughly the same size as the readable text. The 2rem value was chosen arbitrarily during implementation and confirmed by the user as visually appealing. If this ratio needs to be revisited, the key variable is the `font-size` on `h1.page-heading::before`.
 
