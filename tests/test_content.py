@@ -185,6 +185,179 @@ class TestRetroDateFallbacks:
         assert items[0]["date"] == datetime.date.fromisocalendar(2026, 20, 1)
 
 
+class TestPlanVersionMetadata:
+    def _write_plan(self, vault: pathlib.Path, name: str, frontmatter: str) -> None:
+        plans_dir = vault / "claude" / "plans" / "weekly"
+        plans_dir.mkdir(parents=True, exist_ok=True)
+        (plans_dir / name).write_text(f"---\n{frontmatter}\n---\n\n# Plan\n\nContent.")
+
+    def test_plan_id_from_week_and_version(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._write_plan(vault, "2026-W26-v2.md", "type: weekly-plan\nweek: 2026-W26\nversion: 2")
+        items = content.get_weekly_plans(str(vault))
+        assert items[0]["metadata"]["plan_id"] == "2026-W26-v2"
+
+    def test_plan_id_falls_back_to_stem(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._write_plan(vault, "2026-W26-v2.md", "type: weekly-plan")
+        items = content.get_weekly_plans(str(vault))
+        assert items[0]["metadata"]["plan_id"] == "2026-W26-v2"
+
+    def test_superseded_by_passthrough(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._write_plan(
+            vault,
+            "2026-W26-v1.md",
+            "type: weekly-plan\nweek: 2026-W26\nversion: 1\nsuperseded_by: 2026-W26-v2",
+        )
+        items = content.get_weekly_plans(str(vault))
+        assert items[0]["metadata"]["superseded_by"] == "2026-W26-v2"
+
+    def test_related_retro_passthrough(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._write_plan(
+            vault,
+            "2026-W26-v1.md",
+            "type: weekly-plan\nweek: 2026-W26\nversion: 1\nrelated_retro: 2026-W26",
+        )
+        items = content.get_weekly_plans(str(vault))
+        assert items[0]["metadata"]["related_retro"] == "2026-W26"
+
+
+class TestRetroCrossLinkMetadata:
+    def _write_retro(self, vault: pathlib.Path, name: str, frontmatter: str) -> None:
+        retro_dir = vault / "journal" / "summaries" / "retro" / "202x" / "2026" / "W26"
+        retro_dir.mkdir(parents=True, exist_ok=True)
+        (retro_dir / name).write_text(f"---\n{frontmatter}\n---\n\n# Retro\n\nContent.")
+
+    def test_period_derived_from_filename(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._write_retro(vault, "2026-W26.md", "type: retro\nperiod_start: 2026-06-22")
+        items = content.get_retro_summaries(str(vault))
+        assert items[0]["metadata"]["period"] == "2026-W26"
+
+    def test_explicit_period_preserved(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._write_retro(vault, "2026-W26.md", "type: retro\nperiod: 2026-W25\nperiod_start: 2026-06-22")
+        items = content.get_retro_summaries(str(vault))
+        assert items[0]["metadata"]["period"] == "2026-W25"
+
+    def test_related_plan_passthrough(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._write_retro(vault, "2026-W26.md", "type: retro\nperiod_start: 2026-06-22\nrelated_plan: 2026-W26-v2")
+        items = content.get_retro_summaries(str(vault))
+        assert items[0]["metadata"]["related_plan"] == "2026-W26-v2"
+
+    def test_non_weekly_retro_gets_no_period(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        retro_dir = vault / "journal" / "summaries" / "retro" / "202x" / "2026" / "W26"
+        retro_dir.mkdir(parents=True)
+        (retro_dir / "cpe-1234-thing.md").write_text(
+            "---\ntype: retro\nperiod_start: 2026-06-22\n---\n\n# Scoped\n\nx."
+        )
+        items = content.get_retro_summaries(str(vault))
+        assert "period" not in items[0]["metadata"]
+
+
+class TestPlanRetroCrossLinkRendering:
+    _G = "megadoomer-io:megadoomer-ship"
+    CREW_H = {"X-Auth-Request-User": "u", "X-Auth-Request-Groups": f"{_G}-crew,{_G}"}
+
+    @pytest.fixture()
+    def app(self, tmp_path: pathlib.Path) -> flask.Flask:
+        import os
+
+        vault = tmp_path / "vault"
+        plans = vault / "claude" / "plans" / "weekly"
+        plans.mkdir(parents=True)
+        (plans / "2026-W23-v1.md").write_text(
+            "---\ntype: weekly-plan\nweek: 2026-W23\nversion: 1\n"
+            "superseded_by: 2026-W23-v2\n---\n\n"
+            "# Weekly Plan: 2026-W23 (v1)\n\n## Commitments\n- [ ] old\n"
+        )
+        (plans / "2026-W23-v2.md").write_text(
+            "---\ntype: weekly-plan\nweek: 2026-W23\nversion: 2\nrelated_retro: 2026-W23\n---\n\n"
+            "# Weekly Plan: 2026-W23 (v2)\n\n## Commitments\n- [ ] new\n\n"
+            "## Changes from Previous Version\n\n- reframed\n"
+        )
+        retro = vault / "journal" / "summaries" / "retro" / "202x" / "2026" / "W23"
+        retro.mkdir(parents=True)
+        (retro / "2026-W23.md").write_text(
+            "---\ntype: retro\nperiod_start: 2026-06-01\nperiod: 2026-W23\n"
+            "related_plan: 2026-W23-v2\n---\n\n# Retro: W23\n\n## Shipped\n- thing\n"
+        )
+
+        os.environ["SHIP_VAULT_REPO"] = ""
+        os.environ["SHIP_VAULT_PATH"] = str(vault)
+
+        test_app = ship.create_app()
+        test_app.config["TESTING"] = True
+        return test_app
+
+    @pytest.fixture()
+    def client(self, app: flask.Flask) -> flask.testing.FlaskClient:
+        return app.test_client()
+
+    def test_course_dims_superseded_version(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/course", headers=self.CREW_H).data.decode()
+        assert 'id="2026-W23-v2"' in html
+        assert 'id="2026-W23-v1"' in html
+        assert "entry-card superseded" in html
+        assert "badge-superseded" in html
+
+    def test_course_superseded_marker_links_to_current(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/course", headers=self.CREW_H).data.decode()
+        assert 'href="#2026-W23-v2"' in html
+
+    def test_course_links_to_retro(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/course", headers=self.CREW_H).data.decode()
+        assert "Read the retro for this plan" in html
+        assert "captains-log#2026-W23" in html
+
+    def test_captains_log_links_to_plan(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/captains-log", headers=self.CREW_H).data.decode()
+        assert "View the plan for this week" in html
+        assert "course#2026-W23-v2" in html
+
+    def test_superseded_version_has_no_retro_link(self, client: flask.testing.FlaskClient) -> None:
+        # Only the retrospected (final) version carries related_retro, so the
+        # dimmed v1 must not render a retro link even though its week has a retro.
+        html = client.get("/course", headers=self.CREW_H).data.decode()
+        assert html.count("Read the retro for this plan") == 1
+
+
+class TestPlanWithoutRetroHasNoLink:
+    _G = "megadoomer-io:megadoomer-ship"
+    CREW_H = {"X-Auth-Request-User": "u", "X-Auth-Request-Groups": f"{_G}-crew,{_G}"}
+
+    @pytest.fixture()
+    def app(self, tmp_path: pathlib.Path) -> flask.Flask:
+        import os
+
+        vault = tmp_path / "vault"
+        plans = vault / "claude" / "plans" / "weekly"
+        plans.mkdir(parents=True)
+        # Current-week plan: not retrospected yet -> no related_retro -> no link.
+        (plans / "2026-W30-v1.md").write_text(
+            "---\ntype: weekly-plan\nweek: 2026-W30\nversion: 1\n---\n\n"
+            "# Weekly Plan: 2026-W30 (v1)\n\n## Commitments\n- [ ] thing\n"
+        )
+        os.environ["SHIP_VAULT_REPO"] = ""
+        os.environ["SHIP_VAULT_PATH"] = str(vault)
+        test_app = ship.create_app()
+        test_app.config["TESTING"] = True
+        return test_app
+
+    @pytest.fixture()
+    def client(self, app: flask.Flask) -> flask.testing.FlaskClient:
+        return app.test_client()
+
+    def test_no_retro_link_when_not_retrospected(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/course", headers=self.CREW_H).data.decode()
+        assert "2026-W30-v1" in html
+        assert "Read the retro for this plan" not in html
+
+
 class TestGetHierarchicalFeed:
     def test_returns_week_groups(self, vault: str) -> None:
         feed = content.get_hierarchical_feed(vault)

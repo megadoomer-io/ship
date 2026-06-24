@@ -50,9 +50,19 @@ Ship reads these frontmatter fields from vault files. Changes to field names, ty
 | Weekly summaries | period_start   | date (ISO)    | Sort order, date display    |
 |                  | metrics        | dict          | Commit/PR counts in labels  |
 | Retro summaries  | period_start   | date (ISO)    | Sort order, date display    |
+|                  | related_plan   | str (YYYY-Www-vN) | retro→plan cross-link   |
 | Weekly plans     | week           | str (YYYY-Www)| Sort order, date extraction |
+|                  | version        | int           | Plan version (anchor id)    |
+|                  | superseded_by  | str (YYYY-Www-vN) | Dim old versions, link to replacement |
+|                  | related_retro  | str (YYYY-Www)| plan→retro link; present only after retrospected |
 
 **Canonical date field**: `period_start` (ISO date string). Ship's content.py has a 3-tier fallback for weekly summaries (period_start -> week+year frontmatter -> filename regex), but only `period_start` should be relied on going forward. New summaries written by `/work-summarize` should always include `period_start`.
+
+**Cross-linking and supersession** (matches the dotfiles plan/retro contract):
+
+- Plans and retros for the same week link to each other. A plan's `related_retro` targets the retro card's anchor; a retro's `related_plan` targets a specific plan version's anchor. `related_retro` is back-filled onto the final plan version when the retro is written, so the current week's (not-yet-retrospected) plan renders no retro link.
+- `superseded_by` on a plan version is the sole signal Ship uses to dim it — Ship does not infer "latest version wins." The current version omits the field.
+- **Derived anchors** (computed in content.py, not read from frontmatter): plan cards get `id="<plan_id>"` (`<week>-v<version>`, falling back to the filename stem); retro cards get `period` (the `YYYY-Www` stem) so the dormant obs-deck link and the new plan link both resolve.
 
 ### Available for filtering (not yet consumed)
 
