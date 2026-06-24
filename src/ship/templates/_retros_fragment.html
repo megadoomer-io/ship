@@ -19,9 +19,10 @@
 
         <div class="rendered-content">{{ item.rendered_html | collapse_sections("retro") | safe }}</div>
 
-        {% if item.metadata.get('period') %}
+        {% if item.metadata.get('related_plan') or item.metadata.get('period') %}
         <div class="section-links">
-            <a href="{{ url_for('ship.observation_deck', week=item.metadata['period']) }}">View activity for this week</a>
+            {% if item.metadata.get('related_plan') %}<a href="{{ url_for('ship.course') }}#{{ item.metadata['related_plan'] }}">View the plan for this week</a>{% endif %}
+            {% if item.metadata.get('period') %}<a href="{{ url_for('ship.observation_deck', week=item.metadata['period']) }}">View activity for this week</a>{% endif %}
         </div>
         {% endif %}
     </div>

@@ -213,6 +213,14 @@ def get_retro_summaries(vault_path: str, limit: int = 4, offset: int = 0) -> lis
         if item_date is None:
             item_date = datetime.date.today()
 
+        # Derive the week-stamp anchor for weekly retros (YYYY-Www.md). This is
+        # the target for plan->retro links and the existing obs-deck link, which
+        # was dormant because retros don't carry a `period` field in frontmatter.
+        if "period" not in meta:
+            stem_match = _WEEK_RE.match(f.stem)
+            if stem_match:
+                meta["period"] = f"{stem_match.group(1)}-W{stem_match.group(2)}"
+
         items.append(
             TimelineItem(
                 date=item_date,
@@ -254,20 +262,27 @@ def get_weekly_plans(vault_path: str, limit: int = 10, offset: int = 0) -> list[
             match = _PLAN_WEEK_RE.match(week_field)
             if match:
                 with contextlib.suppress(ValueError):
-                    item_date = datetime.date.fromisocalendar(
-                        int(match.group(1)), int(match.group(2)), 1
-                    )
+                    item_date = datetime.date.fromisocalendar(int(match.group(1)), int(match.group(2)), 1)
 
         if item_date is None:
             match = _PLAN_WEEK_RE.search(f.stem)
             if match:
                 with contextlib.suppress(ValueError):
-                    item_date = datetime.date.fromisocalendar(
-                        int(match.group(1)), int(match.group(2)), 1
-                    )
+                    item_date = datetime.date.fromisocalendar(int(match.group(1)), int(match.group(2)), 1)
 
         if item_date is None:
             item_date = datetime.date.today()
+
+        # Stable anchor id for this plan version (YYYY-Www-vN). Retro frontmatter's
+        # `related_plan` points at this; the filename stem already matches when
+        # week/version aren't both present in frontmatter.
+        if "plan_id" not in meta:
+            week_val = meta.get("week")
+            version_val = meta.get("version")
+            if isinstance(week_val, str) and version_val is not None:
+                meta["plan_id"] = f"{week_val}-v{version_val}"
+            else:
+                meta["plan_id"] = f.stem
 
         items.append(
             TimelineItem(

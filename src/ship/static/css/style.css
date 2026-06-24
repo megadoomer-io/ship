@@ -292,6 +292,23 @@ details.entry-card[open] > summary.entry-header::after {
     border: 1px solid color-mix(in srgb, var(--accent-secondary), transparent 70%);
 }
 
+.badge-superseded {
+    color: var(--text-muted);
+    background: color-mix(in srgb, var(--text-muted), transparent 85%);
+    border: 1px solid color-mix(in srgb, var(--text-muted), transparent 70%);
+}
+
+/* Superseded plan versions: dimmed so the current version stands out, but
+   readable on hover. The data driver is the `superseded_by` frontmatter flag. */
+.entry-card.superseded {
+    opacity: 0.5;
+    transition: opacity 0.15s;
+}
+
+.entry-card.superseded:hover {
+    opacity: 0.9;
+}
+
 /* Period filter */
 .period-filter {
     display: flex;
@@ -326,6 +343,9 @@ details.entry-card[open] > summary.entry-header::after {
     margin-top: 0.75rem;
     padding-top: 0.5rem;
     border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
 }
 
 .section-links a {
