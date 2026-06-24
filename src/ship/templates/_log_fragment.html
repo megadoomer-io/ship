@@ -1,0 +1,60 @@
+{% set ns = namespace(opened=false) %}
+{% for item in log %}
+{% set is_superseded_plan = item.content_type == 'plan' and item.metadata.get('superseded_by') %}
+{% set do_open = (not ns.opened) and (not is_fragment) and (not is_superseded_plan) %}
+{% if do_open %}{% set ns.opened = true %}{% endif %}
+{% if item.content_type == 'plan' %}
+<details id="{{ item.metadata.get('plan_id', '') }}" class="card entry-card{% if item.metadata.get('superseded_by') %} superseded{% endif %}"{% if do_open %} open{% endif %}>
+    <summary class="entry-header">
+        <span class="badge badge-plan">plan</span>
+        {% if item.metadata.get('superseded_by') %}<span class="badge badge-superseded">superseded</span>{% endif %}
+        <span class="entry-title">{{ item.title }}</span>
+        <time class="entry-date">{{ item.date.strftime('%b %d, %Y') }}</time>
+    </summary>
+    <div class="entry-body">
+        {% if item.metadata.get('related_retro') %}
+        <div class="section-links">
+            <a href="#{{ item.metadata['related_retro'] }}">See the retro</a>
+        </div>
+        {% endif %}
+        {% if item.metadata.get('superseded_by') %}
+        <p class="text-muted" style="margin-bottom: var(--space-md);">Superseded by {{ item.metadata['superseded_by'] }}.</p>
+        {% endif %}
+        {% if item.metadata.get('items_triaged') is not none and item.metadata.get('items_total') is not none %}
+        <p class="text-muted" style="margin-bottom: var(--space-md);">{{ item.metadata['items_triaged'] }}/{{ item.metadata['items_total'] }} items triaged</p>
+        {% endif %}
+
+        <div class="rendered-content">{{ item.rendered_html | collapse_sections("plan") | safe }}</div>
+    </div>
+</details>
+{% else %}
+<details id="{{ item.metadata.get('period', '') }}" class="card entry-card"{% if do_open %} open{% endif %}>
+    <summary class="entry-header">
+        <span class="badge badge-retro">retro</span>
+        <span class="entry-title">{{ item.title }}</span>
+        <time class="entry-date">{{ item.date.strftime('%b %d, %Y') }}</time>
+    </summary>
+    <div class="entry-body">
+        {% if item.metadata.get('metrics') %}
+        <table class="metrics-table">
+            <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+            <tbody>
+            {% for key, value in item.metadata['metrics'].items() %}
+            <tr><td>{{ key | replace('_', ' ') | title }}</td><td>{{ value }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+        <div class="rendered-content">{{ item.rendered_html | collapse_sections("retro") | safe }}</div>
+
+        {% if item.metadata.get('related_plan') or item.metadata.get('period') %}
+        <div class="section-links">
+            {% if item.metadata.get('related_plan') %}<a href="#{{ item.metadata['related_plan'] }}">See the plan</a>{% endif %}
+            {% if item.metadata.get('period') %}<a href="{{ url_for('ship.observation_deck', week=item.metadata['period']) }}">See all activity</a>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+</details>
+{% endif %}
+{% endfor %}

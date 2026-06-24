@@ -297,6 +297,42 @@ def get_weekly_plans(vault_path: str, limit: int = 10, offset: int = 0) -> list[
     return items[offset:]
 
 
+def get_current_plan(vault_path: str) -> TimelineItem | None:
+    """The single most recent plan -- the current heading.
+
+    Most recent week, current (non-superseded) version. This is what the Course
+    view shows; everything older lives in the Captain's Log.
+    """
+    plans = get_weekly_plans(vault_path, limit=1000)
+    for plan in plans:
+        if not plan["metadata"].get("superseded_by"):
+            return plan
+    return plans[0] if plans else None
+
+
+def get_captains_log(vault_path: str, limit: int = 10, offset: int = 0) -> list[TimelineItem]:
+    """Past plans and all retros, interleaved most-recent-first.
+
+    Past plans = every plan except the current one (so superseded versions and
+    prior weeks). Within a single week the retro sorts above its plan, since the
+    retro is the later event (the reflection on a completed week).
+    """
+    current = get_current_plan(vault_path)
+    current_id = current["metadata"].get("plan_id") if current else None
+
+    past_plans = [
+        plan for plan in get_weekly_plans(vault_path, limit=1000) if plan["metadata"].get("plan_id") != current_id
+    ]
+    retros = get_retro_summaries(vault_path, limit=1000)
+
+    items = past_plans + retros
+    items.sort(
+        key=lambda item: (item["date"], 1 if item["content_type"] == "retro" else 0),
+        reverse=True,
+    )
+    return items[offset : offset + limit]
+
+
 def get_timeline(vault_path: str, limit: int = 20, offset: int = 0) -> list[TimelineItem]:
     fetch_limit = limit + offset
     items: list[TimelineItem] = []

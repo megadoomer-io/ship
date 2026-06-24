@@ -73,27 +73,26 @@ def observation_deck() -> str:
 def captains_log() -> str:
     vault_path = flask.current_app.config["VAULT_PATH"]
     limit = 10
-    retros = cached(f"retros:{limit}", content.get_retro_summaries, vault_path, limit=limit)
+    log = cached(f"log:{limit}", content.get_captains_log, vault_path, limit=limit)
     return flask.render_template(
         "captains_log.html",
         role=flask.g.role,
         actual_role=flask.g.actual_role,
         user=flask.g.user,
-        retros=retros,
+        log=log,
     )
 
 
 @bp.route("/course")
 def course() -> str:
     vault_path = flask.current_app.config["VAULT_PATH"]
-    limit = 10
-    plans = cached(f"plans:{limit}", content.get_weekly_plans, vault_path, limit=limit)
+    plan = cached("current_plan", content.get_current_plan, vault_path)
     return flask.render_template(
         "course.html",
         role=flask.g.role,
         actual_role=flask.g.actual_role,
         user=flask.g.user,
-        plans=plans,
+        plan=plan,
     )
 
 
@@ -136,31 +135,16 @@ def api_version() -> flask.Response:
     return flask.jsonify({"generation": generation})
 
 
-@bp.route("/api/plans")
-def api_plans() -> str:
+@bp.route("/api/captains-log")
+def api_captains_log() -> str:
     vault_path = flask.current_app.config["VAULT_PATH"]
     offset = flask.request.args.get("offset", 0, type=int)
     limit = min(flask.request.args.get("limit", 10, type=int), 20)
-    plans = cached(
-        f"plans:{offset}:{limit}",
-        content.get_weekly_plans,
+    log = cached(
+        f"log:{offset}:{limit}",
+        content.get_captains_log,
         vault_path,
         limit=limit,
         offset=offset,
     )
-    return flask.render_template("_plans_fragment.html", plans=plans, is_fragment=True)
-
-
-@bp.route("/api/retros")
-def api_retros() -> str:
-    vault_path = flask.current_app.config["VAULT_PATH"]
-    offset = flask.request.args.get("offset", 0, type=int)
-    limit = min(flask.request.args.get("limit", 10, type=int), 20)
-    retros = cached(
-        f"retros:{offset}:{limit}",
-        content.get_retro_summaries,
-        vault_path,
-        limit=limit,
-        offset=offset,
-    )
-    return flask.render_template("_retros_fragment.html", retros=retros, is_fragment=True)
+    return flask.render_template("_log_fragment.html", log=log, is_fragment=True)

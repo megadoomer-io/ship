@@ -30,10 +30,15 @@ Each Ship view owns specific vault content types. Do not add content from one vi
 | Observation Deck | OFFICERS | journal/summaries/weekly/**/*.md           | Weekly summaries |
 |                  |          | journal/entries/**/*.md                    | Daily entries    |
 | Porthole         | CREW     | journal/summaries/weekly/**/*.md           | Weekly summaries |
-| Captain's Log    | CREW     | journal/summaries/retro/**/*.md            | Retro summaries  |
-| Course           | CREW     | claude/plans/weekly/**/*.md                | Weekly plans     |
+| Course           | CREW     | claude/plans/weekly/ (current plan only)   | Current plan     |
+| Captain's Log    | CREW     | claude/plans/weekly/**/*.md (past)         | Past plans       |
+|                  |          | journal/summaries/retro/**/*.md            | Retro summaries  |
 
 Notes:
+- **Course = the current heading.** It shows ONLY the single most recent plan (latest week, current non-superseded version) — what's in front of us now. It does not list history.
+- **Captain's Log = the voyage record.** Past plans (every plan except the current one, including superseded versions of the current week) interleaved with all retros, most recent first. Within a week the retro sorts above its plan (the retro is the later event). Each week reads as a pair: the plan, and the retro reflecting on it.
+- Plans are split by recency, not duplicated: the current plan is on Course, everything older is in the Captain's Log. A plan moves from Course to the Log when a newer plan supersedes it or a new week begins.
+- Cross-links inside the Log are intra-page anchors (a past plan and its retro both live there): a retro's `related_plan` and a plan's `related_retro` resolve to sibling cards. "See all activity" on a retro links out to the Observation Deck.
 - Weekly summaries appear on Porthole (as standalone cards) and inside the Observation Deck feed (as collapsible section headers that group daily entries by week). This is an accepted boundary crossing because they serve different structural purposes.
 - Journal entries appear on Bridge (today only) and Observation Deck (full history, nested under week groups). This is a scope split, not duplication.
 - Active Work appears ONLY on Bridge. Officers see historical activity on Observation Deck but not the active work dashboard.

@@ -54,6 +54,17 @@ h1.page-heading::before {
     margin-bottom: var(--space-lg);
 }
 
+.page-blurb a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s;
+}
+
+.page-blurb a:hover {
+    border-bottom-color: var(--accent);
+}
+
 h2 {
     font-family: var(--font-mono);
     font-size: 1rem;
@@ -338,14 +349,14 @@ details.entry-card[open] > summary.entry-header::after {
     background: color-mix(in srgb, var(--accent), transparent 90%);
 }
 
-/* Section links (retro cross-references, etc.) */
+/* Section links (retro cross-references, etc.). Stacked one per line. */
 .section-links {
     margin-top: 0.75rem;
     padding-top: 0.5rem;
     border-top: 1px solid var(--border);
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-md);
+    flex-direction: column;
+    gap: 0.35rem;
 }
 
 .section-links a {

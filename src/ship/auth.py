@@ -33,9 +33,8 @@ ROUTE_MINIMUM_ROLE: dict[str, Role] = {
     "ship.course": Role.CREW,
     "ship.index": Role.CREW,
     "ship.api_feed": Role.OFFICERS,
-    "ship.api_plans": Role.CREW,
     "ship.api_timeline": Role.CREW,
-    "ship.api_retros": Role.CREW,
+    "ship.api_captains_log": Role.CREW,
     "ship.api_version": Role.CREW,
 }
 

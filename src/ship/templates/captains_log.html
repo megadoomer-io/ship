@@ -4,26 +4,26 @@
 
 {% block content %}
 <h1 class="page-heading" data-irken="Captain's Log">Captain's Log</h1>
-<p class="page-blurb">Reflections on the voyage. Patterns, insights, and course corrections.</p>
+<p class="page-blurb">The voyage record. Past plans and the retros that reflect on them, in order.</p>
 
-{% if retros %}
-<div id="retros-container">
-    {% include "_retros_fragment.html" %}
+{% if log %}
+<div id="log-container">
+    {% include "_log_fragment.html" %}
 </div>
 {% else %}
 <section class="card">
-    <p class="text-muted">No retros yet. Run <code>/retro</code> to generate your first captain's log entry.</p>
+    <p class="text-muted">No log entries yet. Past plans and retros will appear here as the voyage unfolds.</p>
 </section>
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
-{% if retros %}
+{% if log %}
 <script>
     initInfiniteScroll({
-        container: '#retros-container',
-        url: '{{ url_for("ship.api_retros") }}',
-        initialCount: {{ retros|length }},
+        container: '#log-container',
+        url: '{{ url_for("ship.api_captains_log") }}',
+        initialCount: {{ log|length }},
         limit: 10
     });
 </script>
