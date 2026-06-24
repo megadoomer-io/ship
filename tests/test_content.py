@@ -259,7 +259,64 @@ class TestRetroCrossLinkMetadata:
         assert "period" not in items[0]["metadata"]
 
 
+class TestGetCurrentPlan:
+    def _plan(self, vault: pathlib.Path, name: str, fm: str) -> None:
+        d = vault / "claude" / "plans" / "weekly"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / name).write_text(f"---\n{fm}\n---\n\n# Plan\n\nx.")
+
+    def test_returns_latest_nonsuperseded(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._plan(vault, "2026-W23-v1.md", "type: weekly-plan\nweek: 2026-W23\nversion: 1\nsuperseded_by: 2026-W23-v2")
+        self._plan(vault, "2026-W23-v2.md", "type: weekly-plan\nweek: 2026-W23\nversion: 2")
+        self._plan(vault, "2026-W24-v1.md", "type: weekly-plan\nweek: 2026-W24\nversion: 1")
+        current = content.get_current_plan(str(vault))
+        assert current is not None
+        assert current["metadata"]["plan_id"] == "2026-W24-v1"
+
+    def test_none_when_empty(self, tmp_path: pathlib.Path) -> None:
+        assert content.get_current_plan(str(tmp_path)) is None
+
+
+class TestGetCaptainsLog:
+    def _build(self, vault: pathlib.Path) -> None:
+        plans = vault / "claude" / "plans" / "weekly"
+        plans.mkdir(parents=True, exist_ok=True)
+        (plans / "2026-W23-v1.md").write_text("---\ntype: weekly-plan\nweek: 2026-W23\nversion: 1\n---\n\n# P\n\nx.")
+        (plans / "2026-W24-v1.md").write_text("---\ntype: weekly-plan\nweek: 2026-W24\nversion: 1\n---\n\n# P\n\nx.")
+        retro = vault / "journal" / "summaries" / "retro" / "202x" / "2026" / "W23"
+        retro.mkdir(parents=True)
+        (retro / "2026-W23.md").write_text(
+            "---\ntype: retro\nperiod_start: 2026-06-01\nperiod: 2026-W23\n---\n\n# R\n\nx."
+        )
+
+    def test_excludes_current_plan(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._build(vault)
+        log = content.get_captains_log(str(vault))
+        plan_ids = [it["metadata"].get("plan_id") for it in log if it["content_type"] == "plan"]
+        assert "2026-W24-v1" not in plan_ids  # current plan lives on Course
+        assert "2026-W23-v1" in plan_ids  # past plan in the log
+
+    def test_interleaves_plans_and_retros(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._build(vault)
+        log = content.get_captains_log(str(vault))
+        types = {it["content_type"] for it in log}
+        assert types == {"plan", "retro"}
+
+    def test_retro_sorts_above_its_plan(self, tmp_path: pathlib.Path) -> None:
+        vault = tmp_path / "vault"
+        self._build(vault)
+        kinds = [it["content_type"] for it in content.get_captains_log(str(vault))]
+        # W23 retro and W23-v1 share the week's Monday; the retro is the later event.
+        assert kinds.index("retro") < kinds.index("plan")
+
+
 class TestPlanRetroCrossLinkRendering:
+    """New model: Course shows only the current plan; the Captain's Log
+    interleaves past plans + retros with cross-links and superseded dimming."""
+
     _G = "megadoomer-io:megadoomer-ship"
     CREW_H = {"X-Auth-Request-User": "u", "X-Auth-Request-Groups": f"{_G}-crew,{_G}"}
 
@@ -270,6 +327,12 @@ class TestPlanRetroCrossLinkRendering:
         vault = tmp_path / "vault"
         plans = vault / "claude" / "plans" / "weekly"
         plans.mkdir(parents=True)
+        # Current week (latest): not retrospected -> stays on Course, no retro link.
+        (plans / "2026-W24-v1.md").write_text(
+            "---\ntype: weekly-plan\nweek: 2026-W24\nversion: 1\n---\n\n"
+            "# Weekly Plan: 2026-W24 (v1)\n\n## Commitments\n- [ ] current\n"
+        )
+        # Past week: v1 superseded, v2 final + retrospected -> both in the Log.
         (plans / "2026-W23-v1.md").write_text(
             "---\ntype: weekly-plan\nweek: 2026-W23\nversion: 1\n"
             "superseded_by: 2026-W23-v2\n---\n\n"
@@ -277,8 +340,7 @@ class TestPlanRetroCrossLinkRendering:
         )
         (plans / "2026-W23-v2.md").write_text(
             "---\ntype: weekly-plan\nweek: 2026-W23\nversion: 2\nrelated_retro: 2026-W23\n---\n\n"
-            "# Weekly Plan: 2026-W23 (v2)\n\n## Commitments\n- [ ] new\n\n"
-            "## Changes from Previous Version\n\n- reframed\n"
+            "# Weekly Plan: 2026-W23 (v2)\n\n## Commitments\n- [ ] final\n"
         )
         retro = vault / "journal" / "summaries" / "retro" / "202x" / "2026" / "W23"
         retro.mkdir(parents=True)
@@ -298,35 +360,43 @@ class TestPlanRetroCrossLinkRendering:
     def client(self, app: flask.Flask) -> flask.testing.FlaskClient:
         return app.test_client()
 
-    def test_course_dims_superseded_version(self, client: flask.testing.FlaskClient) -> None:
+    def test_course_shows_only_current_plan(self, client: flask.testing.FlaskClient) -> None:
         html = client.get("/course", headers=self.CREW_H).data.decode()
-        assert 'id="2026-W23-v2"' in html
+        assert 'id="2026-W24-v1"' in html  # the current plan
+        assert "2026-W23-v1" not in html  # past plans are not on Course
+        assert "2026-W23-v2" not in html
+        assert "entry-card superseded" not in html  # nothing dimmed on Course
+
+    def test_course_current_plan_has_no_retro_link(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/course", headers=self.CREW_H).data.decode()
+        assert "See the retro" not in html  # W24 not retrospected yet
+
+    def test_log_dims_superseded_past_plan(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/captains-log", headers=self.CREW_H).data.decode()
         assert 'id="2026-W23-v1"' in html
         assert "entry-card superseded" in html
         assert "badge-superseded" in html
 
-    def test_course_superseded_marker_links_to_current(self, client: flask.testing.FlaskClient) -> None:
-        html = client.get("/course", headers=self.CREW_H).data.decode()
-        assert 'href="#2026-W23-v2"' in html
-
-    def test_course_links_to_retro(self, client: flask.testing.FlaskClient) -> None:
-        html = client.get("/course", headers=self.CREW_H).data.decode()
-        assert "Read the retro for this plan" in html
-        assert "captains-log#2026-W23" in html
-
-    def test_captains_log_links_to_plan(self, client: flask.testing.FlaskClient) -> None:
+    def test_log_excludes_current_plan(self, client: flask.testing.FlaskClient) -> None:
         html = client.get("/captains-log", headers=self.CREW_H).data.decode()
-        assert "View the plan for this week" in html
-        assert "course#2026-W23-v2" in html
+        assert "2026-W24-v1" not in html  # current plan stays on Course
 
-    def test_superseded_version_has_no_retro_link(self, client: flask.testing.FlaskClient) -> None:
-        # Only the retrospected (final) version carries related_retro, so the
-        # dimmed v1 must not render a retro link even though its week has a retro.
-        html = client.get("/course", headers=self.CREW_H).data.decode()
-        assert html.count("Read the retro for this plan") == 1
+    def test_log_cross_links(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/captains-log", headers=self.CREW_H).data.decode()
+        # retrospected past plan -> its retro (intra-log anchor)
+        assert "See the retro" in html
+        assert 'href="#2026-W23"' in html
+        # retro -> its plan (intra-log anchor) + activity link out to obs deck
+        assert "See the plan" in html
+        assert 'href="#2026-W23-v2"' in html
+        assert "See all activity" in html
+        assert "observation-deck" in html
 
 
-class TestPlanWithoutRetroHasNoLink:
+class TestLogAutoExpandSkipsSuperseded:
+    """The Captain's Log must not auto-expand a superseded plan, even when it is
+    the most recent log item. The first non-superseded item opens instead."""
+
     _G = "megadoomer-io:megadoomer-ship"
     CREW_H = {"X-Auth-Request-User": "u", "X-Auth-Request-Groups": f"{_G}-crew,{_G}"}
 
@@ -337,10 +407,23 @@ class TestPlanWithoutRetroHasNoLink:
         vault = tmp_path / "vault"
         plans = vault / "claude" / "plans" / "weekly"
         plans.mkdir(parents=True)
-        # Current-week plan: not retrospected yet -> no related_retro -> no link.
-        (plans / "2026-W30-v1.md").write_text(
-            "---\ntype: weekly-plan\nweek: 2026-W30\nversion: 1\n---\n\n"
-            "# Weekly Plan: 2026-W30 (v1)\n\n## Commitments\n- [ ] thing\n"
+        # W26: v2 is current (Course); v1 is superseded and the most recent LOG item.
+        (plans / "2026-W26-v2.md").write_text(
+            "---\ntype: weekly-plan\nweek: 2026-W26\nversion: 2\n---\n\n# W26 (v2)\n\n- [ ] now\n"
+        )
+        (plans / "2026-W26-v1.md").write_text(
+            "---\ntype: weekly-plan\nweek: 2026-W26\nversion: 1\nsuperseded_by: 2026-W26-v2\n---\n\n"
+            "# W26 (v1)\n\n- [ ] old\n"
+        )
+        # Older week W25 with a retro -> the first non-superseded log item.
+        (plans / "2026-W25-v1.md").write_text(
+            "---\ntype: weekly-plan\nweek: 2026-W25\nversion: 1\nrelated_retro: 2026-W25\n---\n\n# W25\n\n- [ ] done\n"
+        )
+        retro = vault / "journal" / "summaries" / "retro" / "202x" / "2026" / "W25"
+        retro.mkdir(parents=True)
+        (retro / "2026-W25.md").write_text(
+            "---\ntype: retro\nperiod_start: 2026-06-15\nperiod: 2026-W25\n"
+            "related_plan: 2026-W25-v1\n---\n\n# Retro: W25\n\n- thing\n"
         )
         os.environ["SHIP_VAULT_REPO"] = ""
         os.environ["SHIP_VAULT_PATH"] = str(vault)
@@ -352,10 +435,14 @@ class TestPlanWithoutRetroHasNoLink:
     def client(self, app: flask.Flask) -> flask.testing.FlaskClient:
         return app.test_client()
 
-    def test_no_retro_link_when_not_retrospected(self, client: flask.testing.FlaskClient) -> None:
-        html = client.get("/course", headers=self.CREW_H).data.decode()
-        assert "2026-W30-v1" in html
-        assert "Read the retro for this plan" not in html
+    def test_superseded_plan_not_auto_expanded(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/captains-log", headers=self.CREW_H).data.decode()
+        assert 'class="card entry-card superseded">' in html
+        assert 'class="card entry-card superseded" open>' not in html
+
+    def test_first_nonsuperseded_item_expanded(self, client: flask.testing.FlaskClient) -> None:
+        html = client.get("/captains-log", headers=self.CREW_H).data.decode()
+        assert 'id="2026-W25" class="card entry-card" open>' in html
 
 
 class TestGetHierarchicalFeed:
@@ -439,7 +526,7 @@ class TestRouteIntegration:
         assert resp.status_code == 200
         html = resp.data.decode()
         assert "Captain's Log" in html
-        assert "Reflections on the voyage" in html
+        assert "The voyage record" in html
         assert "entry-card" in html
 
     def test_captains_log_has_metrics_table(self, client: flask.testing.FlaskClient) -> None:

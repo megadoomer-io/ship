@@ -351,42 +351,22 @@ class TestApiVersion:
         assert response.status_code == 401
 
 
-class TestApiPlans:
+class TestApiCaptainsLog:
     def test_returns_html(self, client):
-        response = client.get("/api/plans", headers=auth_headers("testuser", CREW_GROUPS))
+        response = client.get("/api/captains-log", headers=auth_headers("testuser", CREW_GROUPS))
         assert response.status_code == 200
         assert "text/html" in response.content_type
 
     def test_requires_crew(self, client):
-        response = client.get("/api/plans", headers=auth_headers("testuser", CARGO_GROUPS))
+        response = client.get("/api/captains-log", headers=auth_headers("testuser", CARGO_GROUPS))
         assert response.status_code == 403
 
     def test_no_auth_returns_401(self, client):
-        response = client.get("/api/plans")
+        response = client.get("/api/captains-log")
         assert response.status_code == 401
 
     def test_offset_beyond_data_returns_empty(self, client):
-        response = client.get("/api/plans?offset=1000", headers=auth_headers("testuser", CREW_GROUPS))
-        assert response.status_code == 200
-        assert response.data.strip() == b""
-
-
-class TestApiRetros:
-    def test_returns_html(self, client):
-        response = client.get("/api/retros", headers=auth_headers("testuser", CREW_GROUPS))
-        assert response.status_code == 200
-        assert "text/html" in response.content_type
-
-    def test_requires_crew(self, client):
-        response = client.get("/api/retros", headers=auth_headers("testuser", CARGO_GROUPS))
-        assert response.status_code == 403
-
-    def test_no_auth_returns_401(self, client):
-        response = client.get("/api/retros")
-        assert response.status_code == 401
-
-    def test_offset_beyond_data_returns_empty(self, client):
-        response = client.get("/api/retros?offset=1000", headers=auth_headers("testuser", CREW_GROUPS))
+        response = client.get("/api/captains-log?offset=1000", headers=auth_headers("testuser", CREW_GROUPS))
         assert response.status_code == 200
         assert response.data.strip() == b""
 
