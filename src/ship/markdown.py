@@ -5,7 +5,11 @@ import mistune
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n.*?\n---\s*\n", re.DOTALL)
 _WIKI_LINK_RE = re.compile(r"\[\[([^\]|]+?)(?:\|([^\]]+?))?\]\]")
 _TAG_RE = re.compile(r"(?<!\w)#([\w][\w/.-]+)")
-_PARTIAL_TASK_RE = re.compile(r"<li>\[-\]\s+(.*?)</li>", re.DOTALL)
+# Partial-task checkbox state. `[-]` is the canonical marker; `[~]` is accepted
+# as a defensive alias so a stray legacy marker still renders as a partial box
+# instead of leaking literal `[~]` text. The plan-authoring instructions are
+# strict (`[-]` only) — this is the lenient reader side.
+_PARTIAL_TASK_RE = re.compile(r"<li>\[[-~]\]\s+(.*?)</li>", re.DOTALL)
 
 
 def _strip_frontmatter(text: str) -> str:
@@ -37,7 +41,7 @@ def _preprocess(text: str) -> str:
 
 _md = mistune.create_markdown(
     escape=False,
-    plugins=["table", "task_lists"],
+    plugins=["table", "task_lists", "strikethrough"],
 )
 
 
