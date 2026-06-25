@@ -66,6 +66,21 @@ def test_partial_task_preserves_inline_markup():
     assert 'class="task-list-item-checkbox partial"' in result
 
 
+def test_renders_strikethrough():
+    result = markdown.render("~~Artifactory 11.5.5~~ — **dropped**")
+    assert "~~" not in result
+    assert "<del>Artifactory 11.5.5</del>" in result
+    assert "<strong>dropped</strong>" in result
+
+
+def test_tilde_marker_aliases_to_partial_task():
+    text = "- [~] Awaiting merge\n- [x] Done\n- [ ] Todo"
+    result = markdown.render(text)
+    assert "[~]" not in result
+    assert 'class="task-list-item-checkbox partial"' in result
+    assert "Awaiting merge</li>" in result
+
+
 def test_renders_links():
     result = markdown.render("[click here](https://example.com)")
     assert 'href="https://example.com"' in result
