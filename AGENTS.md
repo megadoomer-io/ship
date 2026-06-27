@@ -26,7 +26,6 @@ Each Ship view owns specific vault content types. Do not add content from one vi
 |------------------|----------|--------------------------------------------|------------------|
 | Bridge           | CAPTAIN  | claude/active-work/INDEX.md                | Active work      |
 |                  |          | journal/entries/\<today\>/*.md             | Today's entries  |
-|                  |          | journal/summaries/weekly/ (latest only)    | Weekly summary   |
 | Observation Deck | OFFICERS | journal/summaries/weekly/**/*.md           | Weekly summaries |
 |                  |          | journal/entries/**/*.md                    | Daily entries    |
 | Porthole         | CREW     | journal/summaries/weekly/**/*.md           | Weekly summaries |
@@ -42,7 +41,7 @@ Notes:
 - Weekly summaries appear on Porthole (as standalone cards) and inside the Observation Deck feed (as collapsible section headers that group daily entries by week). This is an accepted boundary crossing because they serve different structural purposes.
 - Journal entries appear on Bridge (today only) and Observation Deck (full history, nested under week groups). This is a scope split, not duplication.
 - Active Work appears ONLY on Bridge. Officers see historical activity on Observation Deck but not the active work dashboard.
-- Bridge shows only the LATEST weekly summary for context. Obs Deck and Porthole show the full history.
+- Bridge does NOT show weekly summaries. The only summary it could show is the latest one written, which is the *previous* week's until the current week's is written — stale context that misleads more than it helps. Weekly summaries live on Obs Deck and Porthole (full history).
 
 ## Vault Frontmatter Contract
 

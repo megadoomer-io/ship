@@ -4,19 +4,12 @@
 
 {% block content %}
 <h1 class="page-heading" data-irken="Bridge">Bridge</h1>
-<p class="page-blurb">Full operational control. Active work, daily entries, weekly summaries.</p>
+<p class="page-blurb">Full operational control. Active work and today's entries.</p>
 
 <section class="card">
     <h2>Active Work</h2>
     <div class="rendered-content">{{ active_work | collapse_sections("bridge") | safe }}</div>
 </section>
-
-{% if weekly_summary %}
-<section class="card">
-    <h2>Weekly Summary</h2>
-    <div class="rendered-content">{{ weekly_summary | collapse_sections("bridge") | safe }}</div>
-</section>
-{% endif %}
 
 {% if daily_entries %}
 <section class="card">

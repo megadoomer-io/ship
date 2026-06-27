@@ -99,17 +99,6 @@ def get_active_work(vault_path: str) -> str:
     return "<p>No active work index found.</p>"
 
 
-def get_weekly_summary(vault_path: str) -> str | None:
-    summaries_dir = pathlib.Path(vault_path) / "journal" / "summaries" / "weekly"
-    if not summaries_dir.exists():
-        return None
-
-    files = sorted(summaries_dir.rglob("*.md"), reverse=True)
-    if files:
-        return markdown.render(files[0].read_text())
-    return None
-
-
 def get_daily_entries(vault_path: str) -> list[str]:
     today = datetime.date.today().isoformat()
     entries_dir = pathlib.Path(vault_path) / "journal" / "entries"

@@ -83,6 +83,14 @@ class TestBridge:
         response = client.get("/bridge", headers=auth_headers("testuser", CREW_GROUPS))
         assert response.status_code == 403
 
+    def test_no_weekly_summary_section(self, client):
+        # The mock vault has weekly summaries, but Bridge must not render one:
+        # the latest written summary is the *previous* week's until the current
+        # week's exists, which is stale context. Lives on Obs Deck / Porthole.
+        response = client.get("/bridge", headers=auth_headers("testuser", CAPTAIN_GROUPS))
+        assert response.status_code == 200
+        assert b"Weekly Summary" not in response.data
+
 
 class TestObservationDeck:
     def test_captain_gets_200(self, client):

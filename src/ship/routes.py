@@ -34,7 +34,6 @@ def bridge() -> str:
         actual_role=flask.g.actual_role,
         user=flask.g.user,
         active_work=cached("active_work", content.get_active_work, vault_path),
-        weekly_summary=cached("weekly_summary", content.get_weekly_summary, vault_path),
         daily_entries=cached("daily_entries", content.get_daily_entries, vault_path),
     )
 
