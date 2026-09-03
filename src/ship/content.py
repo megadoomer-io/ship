@@ -93,7 +93,7 @@ def _week_date_range(year: int, week: int) -> tuple[datetime.date, datetime.date
 
 
 def get_active_work(vault_path: str) -> str:
-    index = pathlib.Path(vault_path) / "claude" / "active-work" / "INDEX.md"
+    index = pathlib.Path(vault_path) / "agents" / "active-work" / "INDEX.md"
     if index.exists():
         return markdown.render(index.read_text())
     return "<p>No active work index found.</p>"
@@ -227,7 +227,7 @@ _PLAN_WEEK_RE = re.compile(r"(\d{4})-W(\d{2})")
 
 
 def get_weekly_plans(vault_path: str, limit: int = 10, offset: int = 0) -> list[TimelineItem]:
-    plans_dir = pathlib.Path(vault_path) / "claude" / "plans" / "weekly"
+    plans_dir = pathlib.Path(vault_path) / "agents" / "plans" / "weekly"
     if not plans_dir.exists():
         return []
 

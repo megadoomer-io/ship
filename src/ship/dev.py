@@ -18,12 +18,12 @@ def create_mock_vault(target_path: str) -> None:
         week = f"W{iso.week:02d}"
         return decade, year, month, week
 
-    active_work_dir = vault / "claude" / "active-work"
+    active_work_dir = vault / "agents" / "active-work"
     active_work_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy(FIXTURES_DIR / "active-work-index.md", active_work_dir / "INDEX.md")
 
     # Weekly plans (2 weeks)
-    plans_dir = vault / "claude" / "plans" / "weekly"
+    plans_dir = vault / "agents" / "plans" / "weekly"
     plans_dir.mkdir(parents=True, exist_ok=True)
     dec, yr, _, wk = _week_parts(today)
     shutil.copy(FIXTURES_DIR / "weekly-plan.md", plans_dir / f"{yr}-{wk}-v1.md")

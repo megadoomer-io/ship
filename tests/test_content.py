@@ -187,7 +187,7 @@ class TestRetroDateFallbacks:
 
 class TestPlanVersionMetadata:
     def _write_plan(self, vault: pathlib.Path, name: str, frontmatter: str) -> None:
-        plans_dir = vault / "claude" / "plans" / "weekly"
+        plans_dir = vault / "agents" / "plans" / "weekly"
         plans_dir.mkdir(parents=True, exist_ok=True)
         (plans_dir / name).write_text(f"---\n{frontmatter}\n---\n\n# Plan\n\nContent.")
 
@@ -261,7 +261,7 @@ class TestRetroCrossLinkMetadata:
 
 class TestGetCurrentPlan:
     def _plan(self, vault: pathlib.Path, name: str, fm: str) -> None:
-        d = vault / "claude" / "plans" / "weekly"
+        d = vault / "agents" / "plans" / "weekly"
         d.mkdir(parents=True, exist_ok=True)
         (d / name).write_text(f"---\n{fm}\n---\n\n# Plan\n\nx.")
 
@@ -280,7 +280,7 @@ class TestGetCurrentPlan:
 
 class TestGetCaptainsLog:
     def _build(self, vault: pathlib.Path) -> None:
-        plans = vault / "claude" / "plans" / "weekly"
+        plans = vault / "agents" / "plans" / "weekly"
         plans.mkdir(parents=True, exist_ok=True)
         (plans / "2026-W23-v1.md").write_text("---\ntype: weekly-plan\nweek: 2026-W23\nversion: 1\n---\n\n# P\n\nx.")
         (plans / "2026-W24-v1.md").write_text("---\ntype: weekly-plan\nweek: 2026-W24\nversion: 1\n---\n\n# P\n\nx.")
@@ -325,7 +325,7 @@ class TestPlanRetroCrossLinkRendering:
         import os
 
         vault = tmp_path / "vault"
-        plans = vault / "claude" / "plans" / "weekly"
+        plans = vault / "agents" / "plans" / "weekly"
         plans.mkdir(parents=True)
         # Current week (latest): not retrospected -> stays on Course, no retro link.
         (plans / "2026-W24-v1.md").write_text(
@@ -405,7 +405,7 @@ class TestLogAutoExpandSkipsSuperseded:
         import os
 
         vault = tmp_path / "vault"
-        plans = vault / "claude" / "plans" / "weekly"
+        plans = vault / "agents" / "plans" / "weekly"
         plans.mkdir(parents=True)
         # W26: v2 is current (Course); v1 is superseded and the most recent LOG item.
         (plans / "2026-W26-v2.md").write_text(
