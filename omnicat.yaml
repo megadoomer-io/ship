@@ -1,27 +1,54 @@
 schemaVersion: 0.1.0
-description: ship (dummy omnicat descriptor — test-bed seed)
+description: >-
+  Ship — web viewer for AI-curated Obsidian vault journal summaries. Part of the
+  megadoomer.io platform; auth is enforced at the shared oauth2-proxy, not here.
 
 projects:
   - id: ship
     directory: ./
-    description: ship service (placeholder facts for omnicat test-bed)
+    description: Flask app rendering journal/retro/weekly summaries with role-based access
     facts:
+      language:
+        value: python
+        provenance: human-authored
+        last_evaluated: 2026-09-04
       deploy:
-        kind: helm
+        kind: kustomize
         config_repo:
           value: megadoomer-io/megadoomer-config
-          provenance: agent-asserted
+          provenance: human-authored
           last_evaluated: 2026-09-04
       service:
-        handles_own_auth:
-          value: true
-          provenance: agent-asserted
+        hostname:
+          value: ship.megadoomer.io
+          provenance: human-authored
           last_evaluated: 2026-09-04
-        endpoints:
-          value:
-            - { path: /healthz, method: GET }
+        handles_own_auth:
+          value: false
+          provenance: human-authored
+          last_evaluated: 2026-09-04
+          notes: relies on the oauth2-proxy + dex chain for authn/z (GitHub team groups)
       auth_gap:
         value: false
-        provenance: agent-asserted
+        provenance: human-authored
         last_evaluated: 2026-09-04
-        notes: dummy value — test-bed seed, not a real posture assessment
+        notes: web-ingress fronts it via oauth2-proxy; matches handles_own_auth=false
+    links:
+      - repository: megadoomer-io/megadoomer-config
+        directory: applications/megadoomer/ship/do/
+        kind: config-repo
+        provenance: human-authored
+        last_evaluated: 2026-09-04
+        notes: ArgoCD overlay that deploys this service
+      - repository: megadoomer-io/megadoomer-config
+        directory: applications/infra/oauth2-proxy/do/
+        kind: auth-enforced-at
+        provenance: human-authored
+        last_evaluated: 2026-09-04
+        notes: ingress-level authn is enforced here for this service
+      - repository: megadoomer-io/megadoomer-config
+        directory: applications/infra/dex/do/
+        kind: depends-on
+        provenance: human-authored
+        last_evaluated: 2026-09-04
+        notes: identity/group claims come from Dex OIDC
