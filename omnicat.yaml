@@ -1,0 +1,27 @@
+schemaVersion: 0.1.0
+description: ship (dummy omnicat descriptor — test-bed seed)
+
+projects:
+  - id: ship
+    directory: ./
+    description: ship service (placeholder facts for omnicat test-bed)
+    facts:
+      deploy:
+        kind: helm
+        config_repo:
+          value: megadoomer-io/megadoomer-config
+          provenance: agent-asserted
+          last_evaluated: 2026-09-04
+      service:
+        handles_own_auth:
+          value: true
+          provenance: agent-asserted
+          last_evaluated: 2026-09-04
+        endpoints:
+          value:
+            - { path: /healthz, method: GET }
+      auth_gap:
+        value: false
+        provenance: agent-asserted
+        last_evaluated: 2026-09-04
+        notes: dummy value — test-bed seed, not a real posture assessment
