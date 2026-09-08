@@ -1,54 +1,17 @@
 schemaVersion: 0.1.0
-description: >-
-  Ship — web viewer for AI-curated Obsidian vault journal summaries. Part of the
-  megadoomer.io platform; auth is enforced at the shared oauth2-proxy, not here.
-
+description: Core web service for megadoomer.io
 projects:
   - id: ship
     directory: ./
-    description: Flask app rendering journal/retro/weekly summaries with role-based access
+    description: Primary web service
     facts:
-      language:
-        value: python
-        provenance: agent-asserted
-        last_evaluated: 2026-09-08
-      deploy:
-        kind: kustomize
-        config_repo:
-          value: megadoomer-io/megadoomer-config
-          provenance: agent-asserted
-          last_evaluated: 2026-09-08
-      service:
-        hostname:
-          value: ship.megadoomer.io
-          provenance: agent-asserted
-          last_evaluated: 2026-09-08
-        handles_own_auth:
-          value: false
-          provenance: agent-asserted
-          last_evaluated: 2026-09-08
-          notes: relies on the oauth2-proxy + dex chain for authn/z (GitHub team groups)
       auth_gap:
         value: false
         provenance: agent-asserted
-        last_evaluated: 2026-09-08
-        notes: web-ingress fronts it via oauth2-proxy; matches handles_own_auth=false
     links:
-      - repository: megadoomer-io/megadoomer-config
-        directory: applications/megadoomer/ship/
+      - project: ship-config
         kind: config-repo
-        provenance: agent-asserted
-        last_evaluated: 2026-09-08
-        notes: ArgoCD overlay that deploys this service
-      - repository: megadoomer-io/megadoomer-config
-        directory: applications/infra/oauth2-proxy/
+      - project: infra-oauth2-proxy
         kind: auth-enforced-at
-        provenance: agent-asserted
-        last_evaluated: 2026-09-08
-        notes: ingress-level authn is enforced here for this service
-      - repository: megadoomer-io/megadoomer-config
-        directory: applications/infra/dex/
+      - project: infra-dex
         kind: depends-on
-        provenance: agent-asserted
-        last_evaluated: 2026-09-08
-        notes: identity/group claims come from Dex OIDC
