@@ -10,45 +10,45 @@ projects:
     facts:
       language:
         value: python
-        provenance: human-authored
-        last_evaluated: 2026-09-04
+        provenance: agent-asserted
+        last_evaluated: 2026-09-08
       deploy:
         kind: kustomize
         config_repo:
           value: megadoomer-io/megadoomer-config
-          provenance: human-authored
-          last_evaluated: 2026-09-04
+          provenance: agent-asserted
+          last_evaluated: 2026-09-08
       service:
         hostname:
           value: ship.megadoomer.io
-          provenance: human-authored
-          last_evaluated: 2026-09-04
+          provenance: agent-asserted
+          last_evaluated: 2026-09-08
         handles_own_auth:
           value: false
-          provenance: human-authored
-          last_evaluated: 2026-09-04
+          provenance: agent-asserted
+          last_evaluated: 2026-09-08
           notes: relies on the oauth2-proxy + dex chain for authn/z (GitHub team groups)
       auth_gap:
         value: false
-        provenance: human-authored
-        last_evaluated: 2026-09-04
+        provenance: agent-asserted
+        last_evaluated: 2026-09-08
         notes: web-ingress fronts it via oauth2-proxy; matches handles_own_auth=false
     links:
       - repository: megadoomer-io/megadoomer-config
-        directory: applications/megadoomer/ship/do/
+        directory: applications/megadoomer/ship/
         kind: config-repo
-        provenance: human-authored
-        last_evaluated: 2026-09-04
+        provenance: agent-asserted
+        last_evaluated: 2026-09-08
         notes: ArgoCD overlay that deploys this service
       - repository: megadoomer-io/megadoomer-config
-        directory: applications/infra/oauth2-proxy/do/
+        directory: applications/infra/oauth2-proxy/
         kind: auth-enforced-at
-        provenance: human-authored
-        last_evaluated: 2026-09-04
+        provenance: agent-asserted
+        last_evaluated: 2026-09-08
         notes: ingress-level authn is enforced here for this service
       - repository: megadoomer-io/megadoomer-config
-        directory: applications/infra/dex/do/
+        directory: applications/infra/dex/
         kind: depends-on
-        provenance: human-authored
-        last_evaluated: 2026-09-04
+        provenance: agent-asserted
+        last_evaluated: 2026-09-08
         notes: identity/group claims come from Dex OIDC
