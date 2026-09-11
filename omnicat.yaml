@@ -5,8 +5,8 @@ projects:
     directory: ./
     description: Primary web service
     facts:
-      auth_gap:
-        value: false
+      has_auth:
+        value: true
         provenance: agent-asserted
     links:
       - project: ship-config
