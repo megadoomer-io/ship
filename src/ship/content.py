@@ -92,10 +92,36 @@ def _week_date_range(year: int, week: int) -> tuple[datetime.date, datetime.date
     return start, end
 
 
+_ACTIVE_WORK_LINK_RE = re.compile(r"^- (?:[^\[\n]*)\[\[(agents/active-work/[^\]|#]+)\]\]\s*$", re.MULTILINE)
+
+
+def _inline_active_work_docs(vault: pathlib.Path, text: str) -> str:
+    """Replace INDEX pointer lines with the linked active-work doc's body, one level deep.
+
+    Only `agents/active-work/` links on their own bullet line are followed; handoff docs
+    (`agents/plans/...`) and links inside linked docs stay as plain links.
+    """
+    root = (vault / "agents" / "active-work").resolve()
+
+    def _replace(m: re.Match[str]) -> str:
+        path = (vault / f"{m.group(1)}.md").resolve()
+        if not path.is_relative_to(root) or not path.is_file():
+            return m.group(0)
+        _, body = parse_frontmatter(path.read_text())
+        body = re.sub(r"^# .*\n", "", body, count=1)
+        # Nest under the doc's own h3 title: h2 -> h4, capped so h4+ stays valid.
+        body = re.sub(r"^(#{2,4}) ", r"##\1 ", body, flags=re.MULTILINE)
+        title = m.group(1).removeprefix("agents/active-work/")
+        return f"### {title}\n\n{body.strip()}\n"
+
+    return _ACTIVE_WORK_LINK_RE.sub(_replace, text)
+
+
 def get_active_work(vault_path: str) -> str:
-    index = pathlib.Path(vault_path) / "agents" / "active-work" / "INDEX.md"
+    vault = pathlib.Path(vault_path)
+    index = vault / "agents" / "active-work" / "INDEX.md"
     if index.exists():
-        return markdown.render(index.read_text())
+        return markdown.render(_inline_active_work_docs(vault, index.read_text()))
     return "<p>No active work index found.</p>"
 
 
