@@ -583,3 +583,62 @@ class TestPagination:
     def test_hierarchical_feed_explicit_limit(self, vault: str) -> None:
         result = content.get_hierarchical_feed(vault, period="all", offset=0, limit=1)
         assert len(result) <= 1
+
+
+class TestActiveWorkLinkedDocs:
+    @staticmethod
+    def _write(vault: str, rel: str, text: str) -> None:
+        path = pathlib.Path(vault) / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+
+    def test_inlines_active_work_pointer(self, vault: str) -> None:
+        self._write(
+            vault,
+            "agents/active-work/INDEX.md",
+            "# Active Work\n\n## Follow-ups (by project)\n\n- [[agents/active-work/follow-ups/missionlane/joey]]\n",
+        )
+        self._write(
+            vault,
+            "agents/active-work/follow-ups/missionlane/joey.md",
+            "---\nopen: 1\n---\n# Follow-ups: missionlane/joey\n\n## Follow-ups\n\n- [ ] **Fix the gate**\n",
+        )
+        html = content.get_active_work(vault)
+        assert "Fix the gate" in html
+        assert "follow-ups/missionlane/joey" in html
+        assert "open: 1" not in html
+
+    def test_demotes_linked_doc_headings(self, vault: str) -> None:
+        index = "## Linked Docs\n\n- PR review queue: [[agents/active-work/pr-review]]\n"
+        self._write(vault, "agents/active-work/INDEX.md", index)
+        doc = "# PR Review\n\n## PR Review Pipelines\n\n### Human PRs\n\n- x #1\n"
+        self._write(vault, "agents/active-work/pr-review.md", doc)
+        html = content.get_active_work(vault)
+        assert "<h4>PR Review Pipelines</h4>" in html
+        assert "<h5>Human PRs</h5>" in html
+        assert "<h1>" not in html
+
+    def test_does_not_follow_handoff_docs(self, vault: str) -> None:
+        self._write(vault, "agents/active-work/INDEX.md", "### Item\n\n- Handoff: [[agents/plans/joey/doc]]\n")
+        self._write(vault, "agents/plans/joey/doc.md", "# Doc\n\nsecret detail\n")
+        html = content.get_active_work(vault)
+        assert "secret detail" not in html
+
+    def test_depth_one_only(self, vault: str) -> None:
+        self._write(vault, "agents/active-work/INDEX.md", "- [[agents/active-work/a]]\n")
+        self._write(vault, "agents/active-work/a.md", "# A\n\nfrom a\n\n- [[agents/active-work/b]]\n")
+        self._write(vault, "agents/active-work/b.md", "# B\n\nfrom b\n")
+        html = content.get_active_work(vault)
+        assert "from a" in html
+        assert "from b" not in html
+
+    def test_missing_doc_keeps_link(self, vault: str) -> None:
+        self._write(vault, "agents/active-work/INDEX.md", "- [[agents/active-work/gone]]\n")
+        html = content.get_active_work(vault)
+        assert "agents/active-work/gone" in html
+
+    def test_path_escape_not_followed(self, vault: str) -> None:
+        self._write(vault, "agents/active-work/INDEX.md", "- [[agents/active-work/../plans/x]]\n")
+        self._write(vault, "agents/plans/x.md", "# X\n\nescaped\n")
+        html = content.get_active_work(vault)
+        assert "escaped" not in html

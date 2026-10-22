@@ -24,7 +24,8 @@ Each Ship view owns specific vault content types. Do not add content from one vi
 
 | View             | Min Role | Vault Path(s)                              | Content Type     |
 |------------------|----------|--------------------------------------------|------------------|
-| Bridge           | CAPTAIN  | claude/active-work/INDEX.md                | Active work      |
+| Bridge           | CAPTAIN  | agents/active-work/INDEX.md                | Active work      |
+|                  |          | agents/active-work/** (linked from INDEX)  | Active work      |
 |                  |          | journal/entries/\<today\>/*.md             | Today's entries  |
 | Observation Deck | OFFICERS | journal/summaries/weekly/**/*.md           | Weekly summaries |
 |                  |          | journal/entries/**/*.md                    | Daily entries    |
@@ -40,6 +41,7 @@ Notes:
 - Cross-links inside the Log are intra-page anchors (a past plan and its retro both live there): a retro's `related_plan` and a plan's `related_retro` resolve to sibling cards. "See all activity" on a retro links out to the Observation Deck.
 - Weekly summaries appear on Porthole (as standalone cards) and inside the Observation Deck feed (as collapsible section headers that group daily entries by week). This is an accepted boundary crossing because they serve different structural purposes.
 - Journal entries appear on Bridge (today only) and Observation Deck (full history, nested under week groups). This is a scope split, not duplication.
+- Active Work on Bridge is INDEX plus the docs it links under `agents/active-work/` (PR review, discovery freshness, per-project follow-ups), inlined one level deep. Handoff docs under `agents/plans/` are not followed.
 - Active Work appears ONLY on Bridge. Officers see historical activity on Observation Deck but not the active work dashboard.
 - Bridge does NOT show weekly summaries. The only summary it could show is the latest one written, which is the *previous* week's until the current week's is written — stale context that misleads more than it helps. Weekly summaries live on Obs Deck and Porthole (full history).
 
